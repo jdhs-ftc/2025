@@ -33,8 +33,8 @@ import org.firstinspires.ftc.teamcode.helpers.UniqueActionQueue
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.motor.MotorActions
 import org.firstinspires.ftc.teamcode.motor.MotorControl
-import org.firstinspires.ftc.teamcode.rr.messages.Drawing
-import org.firstinspires.ftc.teamcode.rr.messages.MecanumDrive
+import org.firstinspires.ftc.teamcode.rr.Drawing
+import org.firstinspires.ftc.teamcode.rr.MecanumDrive
 import java.lang.Math.toRadians
 import java.util.LinkedList
 import kotlin.math.abs

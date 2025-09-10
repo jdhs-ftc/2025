@@ -33,7 +33,7 @@ import java.util.LinkedList
 class TeleopActions : ActionOpMode() {
 
     // Declare a PIDF Controller to regulate heading
-    private val headingPIDJoystick = PIDFController.PIDCoefficients(0.6, 0.0, 1.0)
+    private val headingPIDJoystick = PIDFController.PIDCoefficients(0.01, 0.0, 0.0)
     private val joystickHeadingController = PIDFController(headingPIDJoystick)
 
     val allHubs: List<LynxModule> by lazy { hardwareMap.getAll<LynxModule>(LynxModule::class.java) }
@@ -77,6 +77,10 @@ class TeleopActions : ActionOpMode() {
 
     val loopTimeAvg = LinkedList<Double>()
     val timeSinceDriverTurned = ElapsedTime()
+
+    var goalVector = Vector2d(-70.0,-70.0)
+
+    var padCameraAutoAim = false
 
 
     override fun runOpMode() {
@@ -137,7 +141,7 @@ class TeleopActions : ActionOpMode() {
 
 
             // Misc/Obscure
-            val padCameraAutoAim = gamepad1.right_stick_button
+            if (gamepad1.right_stick_button && !previousGamepad1.right_stick_button) padCameraAutoAim = !padCameraAutoAim
 
             // Extra Settings
             val pad1ExtraSettings = gamepad1.share
@@ -208,7 +212,7 @@ class TeleopActions : ActionOpMode() {
             )
 
             var rotationAmount = drive.localizer.pose.heading.inverse() // inverse it
-            if (fieldCentric && !padCameraAutoAim) {
+            if (fieldCentric) {
                 rotationAmount =
                     if (PoseStorage.currentTeam == BLUE) { // Depending on which side we're on, the forward angle from driver's perspective changes
                         rotationAmount + Math.toRadians(-90.0)
@@ -235,16 +239,19 @@ class TeleopActions : ActionOpMode() {
                     targetHeading = drive.localizer.pose.heading
                     timeSinceDriverTurned.reset()
                 } else {
-                    val baseHeading = //if (PoseStorage.currentTeam == RED) {
+                    val baseHeading = if (PoseStorage.currentTeam == RED) {
                         Math.toRadians(90.0)
-                    //} else {
-                    //    Math.toRadians(-90.0)
-                    //}
+                    } else {
+                        Math.toRadians(-90.0)
+                    }
                     // Set the target heading for the heading controller to our desired angle
                     if (controllerHeading.norm() > 0.4) { // if the joystick is tilted more than 0.4 from the center,
                         // Cast the angle based on the angleCast of the joystick as a heading
                         targetHeading = controllerHeading.angleCast() + baseHeading
+                    } else if (padCameraAutoAim) {
+                        targetHeading = (goalVector -  drive.localizer.pose.position).angleCast()
                     }
+
 
                     if (padFaceDown) {
                         targetHeading = Rotation2d.fromDouble(Math.toRadians(180.0)) + baseHeading

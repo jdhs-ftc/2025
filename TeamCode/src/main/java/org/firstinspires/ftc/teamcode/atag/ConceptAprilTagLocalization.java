@@ -231,7 +231,7 @@ public class ConceptAprilTagLocalization extends LinearOpMode {
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
-                //telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
+                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
                 // Only use tags that don't have Obelisk in them
                 if (!detection.metadata.name.contains("Obelisk")) {
                     telemetry.addData("robotPosePosition", new Pose3DMessage(detection.robotPose));
@@ -243,7 +243,7 @@ public class ConceptAprilTagLocalization extends LinearOpMode {
 
                 }
             } else {
-                //telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
+                telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
                 //telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
             }
         }   // end for() loop

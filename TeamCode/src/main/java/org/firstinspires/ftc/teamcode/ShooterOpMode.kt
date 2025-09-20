@@ -20,6 +20,7 @@ class ShooterOpMode: OpMode() {
         shooter1.mode = RUN_WITHOUT_ENCODER
         shooter2.mode = RUN_WITHOUT_ENCODER
         shooter2.direction = Direction.REVERSE
+        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     }
 
@@ -29,19 +30,21 @@ class ShooterOpMode: OpMode() {
     var targetRpm = 0.0
 
     override fun loop() {
-        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+
 
 
         val shooter1rpm = shooter1.velocity * 2
         val shooter2rpm = shooter2.velocity * 2
 
-        if (gamepad1.dpadUpWasPressed()) {
-            targetRpm += 500
+        if (gamepad1.dpadUpWasPressed()) targetRpm += 500.0
 
-        }
-        if (gamepad1.dpadDownWasPressed()) {
-            targetRpm -= 500
-        }
+        if (gamepad1.dpadDownWasPressed()) targetRpm -= 500.0
+
+        if (gamepad1.crossWasPressed()) targetRpm = 3000.0
+
+        if (gamepad1.circleWasPressed()) targetRpm = -3000.0
+
+        if (gamepad1.squareWasPressed()) targetRpm = 0.0
         shooter1PID.targetVelocity = targetRpm
         shooter2PID.targetVelocity = targetRpm
 

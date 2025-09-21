@@ -33,7 +33,6 @@ abstract class ActionOpMode : LinearOpMode() {
     }
 
     protected fun updateAsync(packet: TelemetryPacket = DefaultPacket()) {
-        //updateUniqueQueue()
         // update running actions
         val newActions = ArrayList<Action>()
         for (action in runningActions) {
@@ -51,41 +50,10 @@ abstract class ActionOpMode : LinearOpMode() {
         }
     }
 
-    private fun updateUniqueQueue() {
-        val oldActions = uniqueActionsQueue
-        uniqueActionsQueue.clear()
-        // running run on a UniqueAction will automatically re add it to the queue, or start running it
-        oldActions.forEach { this.run(it) }
-    }
 
     protected fun run(a: Action) {
-        //if (duplicated(a)) {
-        //   uniqueActionsQueue.add(a)
-        //} else {
             runningActions.add(a)
-        //}
     }
-
-    protected fun runNoQueue(a: Action) {
-        if (!duplicated(a)) {
-            runningActions.add(a)
-        }
-    }
-
-    @OptIn(ExperimentalContracts::class)
-    fun duplicated(a: Action): Boolean {
-        contract {
-            // this allows the other function to add it to the uniqueActionsQueue without casting
-            returns(true) implies (a is UniqueAction)
-        }
-        return a is UniqueAction && runningActions.stream().anyMatch {
-            it is UniqueAction && it.key == a.key
-        }
-    }
-
-
-    class UniqueAction(action: Action, key: String = "UniqueAction") : BetterUniqueAction(action, key)
-
     // used to differentiate whether we just made the packet or whether it was just passed
     private class DefaultPacket(drawDefaultField: Boolean = true): TelemetryPacket(drawDefaultField)
 }

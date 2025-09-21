@@ -12,21 +12,27 @@ import kotlin.math.absoluteValue
 
 class Shooter(hardwareMap: HardwareMap): Mechanism {
     companion object {
-        var pid = PIDFController.PIDCoefficients(0.0, 0.0, 0.00025)
-        var kV = 0.00017
+        var p = 0.0
+        var i = 0.0
+        var d = 1.0e-3
+        var kV = 2.2e-4
         var kA = 0.0
         var kStatic = 0.0
-        var readyThresholdRpm = 50.0
+        var readyThresholdRpm = 50.0 // could be 100.0
         var firingRpm = 3000.0
 
         init {
-            registerTunable(::pid,"Shooter")
+            registerTunable(::p,"Shooter")
+            registerTunable(::i,"Shooter")
+            registerTunable(::d,"Shooter")
             registerTunable(::kV,"Shooter")
             registerTunable(::kA,"Shooter")
             registerTunable(::kStatic,"Shooter")
             registerTunable(::readyThresholdRpm,"Shooter")
         }
     }
+
+    var pid = PIDFController.PIDCoefficients(p,i,d)
 
     val shooter1: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "shooter1")
     val shooter2: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "shooter2")

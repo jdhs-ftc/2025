@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.WebHandlerManager
 import org.firstinspires.ftc.ftccommon.external.WebHandlerRegistrar
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil
 
-open class BetterUniqueAction(val action: Action, val key: String = "UniqueAction", val wait: Boolean = true) : Action by action {
+open class UniqueAction(val action: Action, val key: String = "UniqueAction", val wait: Boolean = true) : Action by action {
     override fun run(p: TelemetryPacket): Boolean {
         if (!UniqueActionQueue.runningUniqueActions.contains(this) && UniqueActionQueue.runningUniqueActions.any { it.key == key }) (
             // this action is duplicated
@@ -45,7 +45,7 @@ open class BetterUniqueAction(val action: Action, val key: String = "UniqueActio
 
 object UniqueActionQueue : OpModeManagerNotifier.Notifications {
 
-    val runningUniqueActions = ArrayList<BetterUniqueAction>()
+    val runningUniqueActions = ArrayList<UniqueAction>()
     var shouldQueueUniqueActions = true // can be changed at runtime
     // (not sure whether this is good; allows me to make super ultra unique actions)
 

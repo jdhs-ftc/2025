@@ -10,9 +10,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Position
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
+import org.firstinspires.ftc.teamcode.helpers.BetterFR
 import org.firstinspires.ftc.teamcode.helpers.vision.CameraStreamProcessor
 import org.firstinspires.ftc.teamcode.rr.Localizer
 import org.firstinspires.ftc.teamcode.rr.messages.AprilTagDetectionMessage
+import org.firstinspires.ftc.teamcode.rr.messages.PoseMessage
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
@@ -20,7 +22,7 @@ import java.lang.Math.toDegrees
 import kotlin.jvm.java
 
 
-class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localizer): Localizer by baseLocalizer {
+class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localizer): Localizer {
 
     /**
      * Variables to store the position and orientation of the camera on the robot. Setting these
@@ -55,6 +57,8 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         -90.0, -90.0, 0.0, 0
     )
 
+    private val resolution = Size(640, 480)
+
     /**
      * The variable to store our instance of the AprilTag processor.
      */
@@ -72,8 +76,11 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
     // == CAMERA CALIBRATION ==
     // If you do not manually specify calibration parameters, the SDK will attempt
     // to load a predefined calibration for your camera.
+
+    // OV9281 calibrations:
+    // TODO: IF NOT USING OV9281 COMMENT OUT
     // 480p veer calib .setLensIntrinsics(549.651, 549.651, 317.108, 236.644)
-     // 480p my calib
+    // 480p my calib
     .setLensIntrinsics(516.3798424, 515.8231389, 328.1776587, 237.3745503 )
     // 240P .setLensIntrinsics(281.5573273, 281.366942, 156.3332591, 119.8965271)
     // ... these parameters are fx, fy, cx, cy.
@@ -95,7 +102,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         // Note: Decimation can be changed on-the-fly to adapt during a match.
-        aprilTag.setDecimation(1.0F);
+        aprilTag.setDecimation(1.0F) // Maximizing accuracy over fps; could be changed?
 
         // Create the vision portal by using a builder.
         val builder = VisionPortal.Builder()
@@ -107,7 +114,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
 
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(Size(640, 480))
+        builder.setCameraResolution(resolution)
 
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
@@ -124,11 +131,45 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
 
         // Set and enable the processor.
         builder.addProcessor(aprilTag)
-        builder.addProcessor(CameraStreamProcessor())
+        // TODO: If you want to display camera stream on dash, copy this class and uncomment:
+        // otherwise use scrcpy
+        // https://github.com/acmerobotics/ftc-dashboard/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/VisionPortalStreamingOpMode.java
+        //builder.addProcessor(CameraStreamProcessor())
 
 
         // Build the Vision Portal, using the above settings.
         visionPortal = builder.build()
+    }
+
+    var basePose: Pose2d
+        get() = baseLocalizer.pose
+        set(value) = baseLocalizer.setPose(value)
+
+    var offset = Pose2d(0.0,0.0,0.0)
+
+    override fun getPose(): Pose2d = basePose * offset
+    override fun setPose(pose: Pose2d) {
+        basePose = pose
+        offset = Pose2d(0.0,0.0,0.0)
+    }
+    fun setPoseOffset(pose: Pose2d) {
+        offset = pose * basePose.inverse()
+    }
+    
+    // nicer logging
+    var cachedValues = mutableMapOf<String, Any>()
+
+    fun log(ch: String, value: Any) {
+        if (!cachedValues.containsKey(ch)) {
+            cachedValues[ch] = value
+            FlightRecorder.write(ch, value)
+            return
+        }
+
+        if (cachedValues[ch] != value) {
+            cachedValues[ch] = value
+            FlightRecorder.write(ch, value)
+        }
     }
 
 
@@ -138,6 +179,10 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
      */
     override fun update(): PoseVelocity2d {
         val vel = baseLocalizer.update()
+        log("AprilTagLocalizer/basePose", PoseMessage(basePose))
+        log("AprilTagLocalizer/offset", PoseMessage(offset))
+        log("AprilTagLocalizer/pose", PoseMessage(pose))
+        log("AprilTagLocalizer/correctedThisLoop", false)
         //return vel
         /*
         if (vel.linearVel.norm().toDouble() > 1.0 || toDegrees(vel.angVel.toDouble()) > 1.0) {
@@ -154,15 +199,17 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
             if (detection.metadata != null) {
                 // Only use tags that don't have Obelisk in them
                 if (!detection.metadata.name.contains("Obelisk")) {
-                    FlightRecorder.write("AprilTagLocalizer/detection${detection.id}", AprilTagDetectionMessage(detection))
                     foundPoses.add(Pose2d(detection.robotPose.position.x, detection.robotPose.position.y, detection.robotPose.orientation.getYaw(AngleUnit.RADIANS)))
                 }
             }
         } // end for() loop
 
         foundPoses.sortBy { (it - pose).line.norm() }
+        // todo test
+        setPoseOffset(foundPoses.firstOrNull() ?: return vel)
 
-        pose = foundPoses.firstOrNull() ?: return vel
+        log("AprilTagLocalizer/pose", PoseMessage(pose))
+        log("AprilTagLocalizer/correctedThisLoop", true)
 
 
 

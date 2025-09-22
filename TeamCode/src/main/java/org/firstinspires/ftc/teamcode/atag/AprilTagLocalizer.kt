@@ -10,16 +10,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Position
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
-import org.firstinspires.ftc.teamcode.helpers.BetterFR
-import org.firstinspires.ftc.teamcode.helpers.vision.CameraStreamProcessor
 import org.firstinspires.ftc.teamcode.rr.Localizer
-import org.firstinspires.ftc.teamcode.rr.messages.AprilTagDetectionMessage
 import org.firstinspires.ftc.teamcode.rr.messages.PoseMessage
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
-import java.lang.Math.toDegrees
-import kotlin.jvm.java
 
 
 class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localizer): Localizer {

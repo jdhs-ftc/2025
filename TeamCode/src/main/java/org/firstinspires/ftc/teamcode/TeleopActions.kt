@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.helpers.UniqueActionQueue
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.rr.Drawing
 import org.firstinspires.ftc.teamcode.rr.MecanumDrive
+import org.firstinspires.ftc.teamcode.vision.ArtifactLocator
 import java.util.LinkedList
 
 
@@ -80,7 +81,15 @@ class TeleopActions : ActionOpMode() {
 
     var goalVector = Vector2d(-70.0,-70.0)
 
-    var padCameraAutoAim = false
+    lateinit var artifactLocator: ArtifactLocator
+
+    enum class AimMode {
+        NONE,
+        GOAL,
+        ARTIFACT;
+        fun next() = entries[(this.ordinal + 1) % entries.size]
+    }
+    var aimMode = AimMode.NONE
 
 
     override fun runOpMode() {
@@ -102,6 +111,8 @@ class TeleopActions : ActionOpMode() {
 
 
         drive = MecanumDrive(hardwareMap, startPose)
+
+        artifactLocator = ArtifactLocator(hardwareMap)
 
 
         waitForStart()
@@ -141,7 +152,7 @@ class TeleopActions : ActionOpMode() {
 
 
             // Misc/Obscure
-            if (gamepad1.right_stick_button && !previousGamepad1.right_stick_button) padCameraAutoAim = !padCameraAutoAim
+            if (gamepad1.right_stick_button && !previousGamepad1.right_stick_button) aimMode = aimMode.next()
 
             // Extra Settings
             val pad1ExtraSettings = gamepad1.share
@@ -248,7 +259,7 @@ class TeleopActions : ActionOpMode() {
                     if (controllerHeading.norm() > 0.4) { // if the joystick is tilted more than 0.4 from the center,
                         // Cast the angle based on the angleCast of the joystick as a heading
                         targetHeading = controllerHeading.angleCast() + baseHeading
-                    } else if (padCameraAutoAim) {
+                    } else if (aimMode == AimMode.GOAL) {
                         targetHeading = (goalVector -  drive.localizer.pose.position).angleCast()
                     }
 
@@ -267,10 +278,17 @@ class TeleopActions : ActionOpMode() {
                     // Set the desired angular velocity to the heading controller output plus angular
                     // velocity feedforward
                     if (timeSinceDriverTurned.milliseconds() > 250) {
-                        headingInput =
-                            ((joystickHeadingController.update(drive.localizer.pose.heading.log())
-                                    * MecanumDrive.PARAMS.kV
-                                    * MecanumDrive.PARAMS.trackWidthTicks))
+                        if (aimMode == AimMode.ARTIFACT) {
+                            headingInput += artifactLocator.correct()
+                            targetHeading = drive.localizer.pose.heading
+                        } else {
+                            headingInput =
+                                ((joystickHeadingController.update(drive.localizer.pose.heading.log())
+                                        * MecanumDrive.PARAMS.kV
+                                        * MecanumDrive.PARAMS.trackWidthTicks))
+                        }
+
+
                     } else {
                         headingInput = 0.0
                         targetHeading = drive.localizer.pose.heading
@@ -345,6 +363,8 @@ class TeleopActions : ActionOpMode() {
                     telemetry.addLine("--- State Machine ---")
                     telemetry.addData("actions", UniqueActionQueue.runningUniqueActions)
                 }
+                telemetry.addData("aimMode", aimMode)
+                telemetry.addData("blobPos",artifactLocator.currentPos)
                 telemetry.update()
             }
         }

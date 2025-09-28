@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.vision
 
-import android.R
 import android.graphics.Color.rgb
 import android.util.Size
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -8,13 +7,10 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.helpers.Color
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.helpers.registerTunable
-import org.firstinspires.ftc.teamcode.mechanisms.Shooter.Companion.readyThresholdRpm
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor
 import org.firstinspires.ftc.vision.opencv.ColorRange
 import org.firstinspires.ftc.vision.opencv.ImageRegion
-import org.opencv.calib3d.Calib3d
-import org.opencv.calib3d.Calib3d.solvePnP
 
 
 class ArtifactLocator(hardwareMap: HardwareMap) {

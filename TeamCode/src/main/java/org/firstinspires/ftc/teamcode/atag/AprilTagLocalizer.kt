@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.atag
 import android.util.Size
 import com.acmerobotics.roadrunner.Pose2d
 import com.acmerobotics.roadrunner.PoseVelocity2d
+import com.acmerobotics.roadrunner.Twist2d
+import com.acmerobotics.roadrunner.Vector2d
 import com.acmerobotics.roadrunner.ftc.FlightRecorder
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
@@ -10,8 +12,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Position
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
+import org.firstinspires.ftc.teamcode.helpers.BetterFR.cachedValues
 import org.firstinspires.ftc.teamcode.rr.Localizer
 import org.firstinspires.ftc.teamcode.rr.messages.PoseMessage
+import org.firstinspires.ftc.teamcode.rr.messages.TwistMessage
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
@@ -45,11 +49,11 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
      */
     private val cameraPosition = Position(
         DistanceUnit.INCH,
-        0.0, 0.0, 0.0, 0
+        7.0, 0.0, 10.0, 0
     )
     private val cameraOrientation = YawPitchRollAngles(
         AngleUnit.DEGREES,
-        -90.0, -90.0, 0.0, 0
+        90.0, -90.0, 0.0, 0
     )
 
     private val resolution = Size(640, 480)
@@ -113,7 +117,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
 
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
-        builder.enableLiveView(false);
+        builder.enableLiveView(true);
 
         // Set the stream format; MJPEG uses less bandwidth than default YUY2.
         builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG)
@@ -140,15 +144,18 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         get() = baseLocalizer.pose
         set(value) = baseLocalizer.setPose(value)
 
-    var offset = Pose2d(0.0,0.0,0.0)
+    var offset = Twist2d(
+        Vector2d(0.0,0.0), 0.0)
 
-    override fun getPose(): Pose2d = basePose * offset
+    override fun getPose(): Pose2d = basePose + offset
     override fun setPose(pose: Pose2d) {
         basePose = pose
-        offset = Pose2d(0.0,0.0,0.0)
+        offset = Twist2d(
+            Vector2d(0.0, 0.0), 0.0
+        )
     }
-    fun setPoseOffset(pose: Pose2d) {
-        offset = pose * basePose.inverse()
+    fun setPoseViaOffset(pose: Pose2d) {
+        offset = pose - basePose
     }
     
     // nicer logging
@@ -175,7 +182,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
     override fun update(): PoseVelocity2d {
         val vel = baseLocalizer.update()
         log("AprilTagLocalizer/basePose", PoseMessage(basePose))
-        log("AprilTagLocalizer/offset", PoseMessage(offset))
+        log("AprilTagLocalizer/offset", TwistMessage(offset))
         log("AprilTagLocalizer/pose", PoseMessage(pose))
         log("AprilTagLocalizer/correctedThisLoop", false)
         //return vel
@@ -200,8 +207,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         } // end for() loop
 
         foundPoses.sortBy { (it - pose).line.norm() }
-        // todo test
-        setPoseOffset(foundPoses.firstOrNull() ?: return vel)
+        offset = (foundPoses.firstOrNull() ?: return vel) - basePose
 
         log("AprilTagLocalizer/pose", PoseMessage(pose))
         log("AprilTagLocalizer/correctedThisLoop", true)

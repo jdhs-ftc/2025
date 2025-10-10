@@ -23,9 +23,12 @@ import org.firstinspires.ftc.teamcode.helpers.PoseStorage.Team.BLUE
 import org.firstinspires.ftc.teamcode.helpers.PoseStorage.Team.RED
 import org.firstinspires.ftc.teamcode.helpers.UniqueActionQueue
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
+import org.firstinspires.ftc.teamcode.mechanisms.Robot
+import org.firstinspires.ftc.teamcode.mechanisms.Shooter
 import org.firstinspires.ftc.teamcode.rr.Drawing
 import org.firstinspires.ftc.teamcode.rr.MecanumDrive
 import org.firstinspires.ftc.teamcode.vision.ArtifactLocator
+import java.lang.Math.toRadians
 import java.util.LinkedList
 
 
@@ -79,7 +82,6 @@ class TeleopActions : ActionOpMode() {
     val loopTimeAvg = LinkedList<Double>()
     val timeSinceDriverTurned = ElapsedTime()
 
-    var goalVector = Vector2d(-70.0,-70.0)
 
     lateinit var artifactLocator: ArtifactLocator
 
@@ -89,7 +91,9 @@ class TeleopActions : ActionOpMode() {
         ARTIFACT;
         fun next() = entries[(this.ordinal + 1) % entries.size]
     }
-    var aimMode = AimMode.NONE
+    var aimMode = AimMode.GOAL
+
+    lateinit var robot: Robot
 
 
     override fun runOpMode() {
@@ -113,6 +117,8 @@ class TeleopActions : ActionOpMode() {
         drive = MecanumDrive(hardwareMap, startPose)
 
         artifactLocator = ArtifactLocator(hardwareMap)
+
+        robot = Robot(hardwareMap,drive.localizer)
 
 
         waitForStart()
@@ -143,7 +149,7 @@ class TeleopActions : ActionOpMode() {
             // Driving Modifiers
             val padSlowMode = false // NOT MAPPED //gamepad1.right_bumper
             val padFastMode = false // NOT MAPPED
-            val padResetPose = gamepad1.dpad_left && !previousGamepad1.dpad_left
+            val padResetPose = false//gamepad1.dpad_left && !previousGamepad1.dpad_left
 
             val padFaceDown = gamepad1.a
             val padFaceRight = gamepad1.b
@@ -238,15 +244,8 @@ class TeleopActions : ActionOpMode() {
 
             var headingInput = 0.0
             if (drivingEnabled) {
-                if (gamepad1.left_trigger > 0.1 || gamepad1.right_trigger > 0.1 || gamepad1.left_bumper || gamepad1.right_bumper) {
+                if (gamepad1.left_trigger > 0.1 || gamepad1.right_trigger > 0.1) {
                     headingInput = (gamepad1.left_trigger - gamepad1.right_trigger) * speed * 0.50
-
-                    if (gamepad1.left_bumper) {
-                        headingInput += 0.1
-                    }
-                    if (gamepad1.right_bumper) {
-                        headingInput -= 0.1
-                    }
                     targetHeading = drive.localizer.pose.heading
                     timeSinceDriverTurned.reset()
                 } else {
@@ -260,7 +259,7 @@ class TeleopActions : ActionOpMode() {
                         // Cast the angle based on the angleCast of the joystick as a heading
                         targetHeading = controllerHeading.angleCast() + baseHeading
                     } else if (aimMode == AimMode.GOAL) {
-                        targetHeading = (goalVector -  drive.localizer.pose.position).angleCast()
+                        targetHeading = robot.shooter.targetHeading
                     }
 
 
@@ -305,8 +304,28 @@ class TeleopActions : ActionOpMode() {
                 )
 
 
+
                 // update RR, update motor controllers
 
+                val padSpinUp = gamepad1.right_bumper && !previousGamepad1.right_bumper
+                val padSpinDown = gamepad1.left_bumper && !previousGamepad1.left_bumper
+                val padLowerRpm = gamepad1.dpad_left && !previousGamepad1.dpad_left
+                val padHigherRpm = gamepad1.dpad_right && !previousGamepad1.dpad_right
+                val padMuchLowerRpm = gamepad1.dpad_down && !previousGamepad1.dpad_down
+                val padMuchHigherRpm = gamepad1.dpad_up && !previousGamepad1.dpad_up
+
+
+                if (padSpinUp) run(robot.shooter.spinUp())
+                if (padSpinDown) run(robot.shooter.spinDown())
+
+                if (padLowerRpm) robot.shooter.firingRpmOffset -= 100.0
+                if (padHigherRpm) robot.shooter.firingRpmOffset += 100.0
+                if (padMuchLowerRpm) robot.shooter.firingRpmOffset -= 500.0
+                if (padMuchHigherRpm) robot.shooter.firingRpmOffset += 500.0
+
+
+
+                robot.update()
 
                 // TELEMETRY
                 Drawing.drawRobot(
@@ -365,6 +384,12 @@ class TeleopActions : ActionOpMode() {
                 }
                 telemetry.addData("aimMode", aimMode)
                 telemetry.addData("blobPos",artifactLocator.currentPos)
+                telemetry.addData("team",PoseStorage.currentTeam)
+                telemetry.addData("distance",robot.shooter.distance)
+                telemetry.addData("targetRpm", robot.shooter.targetRpm)
+                telemetry.addData("firingRpm",robot.shooter.autoFiringRpm)
+                telemetry.addData("currentRpm1",robot.shooter.shooter1rpm)
+                telemetry.addData("currentRpm2",robot.shooter.shooter2rpm)
                 telemetry.update()
             }
         }

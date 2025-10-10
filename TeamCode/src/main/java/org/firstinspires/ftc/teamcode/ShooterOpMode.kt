@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_WITHOUT_ENCODER
@@ -10,13 +11,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.mechanisms.Shooter
-
+@Disabled
 @TeleOp
 class ShooterOpMode: OpMode() {
     lateinit var shooter: Shooter
 
     override fun init() {
-        shooter = Shooter(hardwareMap)
+        //shooter = Shooter(hardwareMap)
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
     }
 
@@ -33,6 +34,11 @@ class ShooterOpMode: OpMode() {
         //if (gamepad1.circleWasPressed()) targetRpm = -3000.0
 
         if (gamepad1.squareWasPressed()) shooter.spinDown().run(TelemetryPacket())
+
+        if (gamepad1.dpadDownWasPressed()) Shooter.firingRpm -= 100.0
+        if (gamepad1.dpadUpWasPressed()) Shooter.firingRpm += 100.0
+        if (gamepad1.dpadLeftWasPressed()) Shooter.firingRpm -= 500.0
+        if (gamepad1.dpadRightWasPressed()) Shooter.firingRpm += 500.0
 
 
 

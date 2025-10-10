@@ -119,7 +119,7 @@ class ArtifactLocator(hardwareMap: HardwareMap) {
         .addProcessors(purpleLocator, greenLocator)
         .setCameraResolution(Size(320, 240))
         .setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 2"))
-        .enableLiveView(true)
+        .enableLiveView(false)
         .build()
 
     fun getFilteredBlobs(color: Color = Color.ANY): List<ColorBlobLocatorProcessor.Blob> {

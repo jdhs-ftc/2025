@@ -1,16 +1,21 @@
 package org.firstinspires.ftc.teamcode.mechanisms
 
 import com.acmerobotics.roadrunner.Action
+import com.acmerobotics.roadrunner.Vector2d
 import com.jakewharton.threetenabp.AndroidThreeTen.init
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_WITHOUT_ENCODER
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.helpers.PoseStorage
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.helpers.registerTunable
+import org.firstinspires.ftc.teamcode.rr.Localizer
+import java.lang.Math.toRadians
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 
-class Shooter(hardwareMap: HardwareMap): Mechanism {
+class Shooter(hardwareMap: HardwareMap, val localizer: Localizer): Mechanism {
     companion object {
         var p = 0.0
         var i = 0.0
@@ -19,7 +24,20 @@ class Shooter(hardwareMap: HardwareMap): Mechanism {
         var kA = 0.0
         var kStatic = 0.0
         var readyThresholdRpm = 50.0 // could be 100.0
-        var firingRpm = 3000.0
+        /*
+        TABLE
+        1800 at 90
+        2200 at 140
+         */
+
+        // 1800 at 45 deg? at >6 ft
+        var firingRpms = mapOf(Pair(90.0,1800.0),Pair(140.0,2200.0))
+        var blueGoal = Vector2d(-72.0, -80.0)
+        var redGoal = Vector2d(-72.0, 80.0)
+        var shooterX = 0.0
+        var shooterY = 0.0
+        var shooterZ = 0.0
+        var shooterHeading = toRadians(180.0)
 
         init {
             registerTunable(::p,"Shooter")
@@ -29,10 +47,27 @@ class Shooter(hardwareMap: HardwareMap): Mechanism {
             registerTunable(::kA,"Shooter")
             registerTunable(::kStatic,"Shooter")
             registerTunable(::readyThresholdRpm,"Shooter")
+            //registerTunable(::firingRpms,"Shooter")
+            registerTunable(::blueGoal,"Shooter")
+            registerTunable(::redGoal,"Shooter")
+            registerTunable(::shooterX,"Shooter")
+            registerTunable(::shooterY,"Shooter")
+            registerTunable(::shooterZ,"Shooter")
+            registerTunable(::shooterHeading,"Shooter")
         }
     }
 
-    var pid = PIDFController.PIDCoefficients(p,i,d)
+    val targetGoal get() = if (PoseStorage.currentTeam == PoseStorage.Team.RED) redGoal else blueGoal
+
+    val targetHeading get() = (targetGoal - localizer.pose.position).angleCast() + toRadians(180.0)
+
+    val distance get() = (targetGoal - localizer.pose.position).norm()
+
+
+    val pid get() = PIDFController.PIDCoefficients(p,i,d)
+    var firingRpmOffset = 0.0
+    val autoFiringRpm get() = firingRpms.entries.sortedBy { (key, _) -> abs(key - distance) }[0].value + firingRpmOffset
+
 
     val shooter1: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "shooter1")
     val shooter2: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "shooter2")
@@ -51,12 +86,10 @@ class Shooter(hardwareMap: HardwareMap): Mechanism {
     val shooter1rpm get() = shooter1.velocity * 2
     val shooter2rpm get() = shooter2.velocity * 2
 
-    var targetRpm = 0.0
-        set(value) {
-            shooter1PID.targetVelocity = value
-            shooter2PID.targetVelocity = value
-            field = value
-        }
+    var targetRpmGen = { 0.0 }
+
+    val targetRpm
+        get() = targetRpmGen()
 
     val ready get() = (shooter1rpm-targetRpm).absoluteValue < readyThresholdRpm && (shooter2rpm-targetRpm).absoluteValue < readyThresholdRpm
 
@@ -66,25 +99,15 @@ class Shooter(hardwareMap: HardwareMap): Mechanism {
 
         shooter1.power = shooter1PID.update(System.nanoTime(), 0.0, shooter1rpm)
         shooter2.power = shooter2PID.update(System.nanoTime(), 0.0, shooter2rpm)
-        /*
-
-        telemetry.addData("Target Velocity", targetRpm)
-        telemetry.addData("Shooter 1 Velocity", shooter1rpm)
-        telemetry.addData("Shooter 2 Velocity", shooter2rpm)
-        telemetry.addData("shooter 1 power", shooter1.power)
-        telemetry.addData("shooter 2 power", shooter2.power)
-        telemetry.update()
-
-         */
     }
 
     fun spinUp() = Action {
-        targetRpm = firingRpm
+        targetRpmGen = ::autoFiringRpm
         return@Action !ready
     }
 
     fun spinDown() = Action {
-        targetRpm = 0.0
+        targetRpmGen = {0.0}
         return@Action !ready
     }
 }

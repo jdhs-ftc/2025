@@ -309,10 +309,14 @@ class TeleopActions : ActionOpMode() {
 
                 val padSpinUp = gamepad1.right_bumper && !previousGamepad1.right_bumper
                 val padSpinDown = gamepad1.left_bumper && !previousGamepad1.left_bumper
-                val padLowerRpm = gamepad1.dpad_left && !previousGamepad1.dpad_left
-                val padHigherRpm = gamepad1.dpad_right && !previousGamepad1.dpad_right
+                val padLowerRpm = false //gamepad1.dpad_left && !previousGamepad1.dpad_left
+                val padHigherRpm = false //gamepad1.dpad_right && !previousGamepad1.dpad_right
                 val padMuchLowerRpm = gamepad1.dpad_down && !previousGamepad1.dpad_down
                 val padMuchHigherRpm = gamepad1.dpad_up && !previousGamepad1.dpad_up
+
+
+                val padTransferStop = gamepad1.dpad_left && !previousGamepad1.dpad_left
+                val padTransferStart = gamepad1.dpad_right && !previousGamepad1.dpad_right
 
 
                 if (padSpinUp) run(robot.shooter.spinUp())
@@ -322,6 +326,9 @@ class TeleopActions : ActionOpMode() {
                 if (padHigherRpm) robot.shooter.firingRpmOffset += 100.0
                 if (padMuchLowerRpm) robot.shooter.firingRpmOffset -= 500.0
                 if (padMuchHigherRpm) robot.shooter.firingRpmOffset += 500.0
+
+                if (padTransferStop) robot.transfers.forEach { it.power = 0.0 }
+                if (padTransferStart) robot.transfers.forEach { it.power = 1.0 }
 
 
 

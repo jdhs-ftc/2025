@@ -16,4 +16,9 @@ class Robot(hardwareMap: HardwareMap, localizer: Localizer) {
             update()
             return@Action true
         }
+
+
+    val transfer1 = hardwareMap.crservo["transfer1"]
+
+    val transfers = arrayOf(transfer1)
 }

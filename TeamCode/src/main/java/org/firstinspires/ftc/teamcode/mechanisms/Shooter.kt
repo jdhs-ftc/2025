@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.helpers.PoseStorage
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
+import org.firstinspires.ftc.teamcode.helpers.interp
 import org.firstinspires.ftc.teamcode.helpers.registerTunable
 import org.firstinspires.ftc.teamcode.rr.Localizer
 import java.lang.Math.toRadians
@@ -68,7 +69,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer): Mechanism {
     var firingRpmOffset = 0.0
 
     // TODO interplut
-    val autoFiringRpm get() = firingRpms.entries.sortedBy { (key, _) -> abs(key - distance) }[0].value + firingRpmOffset
+    val autoFiringRpm get() = firingRpms.interp(distance) + firingRpmOffset//firingRpms.entries.sortedBy { (key, _) -> abs(key - distance) }[0].value + firingRpmOffset
 
 
     val shooter1: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "shooter1")

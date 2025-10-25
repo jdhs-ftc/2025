@@ -22,6 +22,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
 
 
 class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localizer): Localizer {
+    companion object {
+        var enabled = true
+    }
 
     /**
      * Variables to store the position and orientation of the camera on the robot. Setting these
@@ -185,6 +188,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         log("AprilTagLocalizer/offset", TwistMessage(offset))
         log("AprilTagLocalizer/pose", PoseMessage(pose))
         log("AprilTagLocalizer/correctedThisLoop", false)
+        if (!enabled) return vel
         //return vel
         /*
         if (vel.linearVel.norm().toDouble() > 1.0 || toDegrees(vel.angVel.toDouble()) > 1.0) {

@@ -11,6 +11,7 @@ import com.acmerobotics.roadrunner.Vector2d
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
+import org.firstinspires.ftc.teamcode.helpers.Color
 import org.firstinspires.ftc.teamcode.helpers.FakeCRServo
 import org.firstinspires.ftc.teamcode.helpers.FakeDcMotorEx
 import org.firstinspires.ftc.teamcode.helpers.FakeServo
@@ -30,7 +31,20 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
 
     val light = RGBLight(hardwareMap.servo["light"])
 
-    fun update() = hw.forEach { it.update() }
+    fun update() {
+        hw.forEach { it.update() }
+        when (intakePower) {
+            intakeRun -> {
+                light.color = Color.GREEN
+            }
+            intakeReverse -> {
+                light.color = Color.RED
+            }
+            else -> {
+                light.color = Color.BLUE
+            }
+        }
+    }
 
     fun updateAction() =
         Action {
@@ -120,6 +134,11 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
                     shooter.spinUp(),
                     transferFire(),
                     SleepAction(0.5),
+                    InstantAction { transferPos = transferStop },
+                    SleepAction(0.25),
+                    transferFire(),
+                    SleepAction(0.5),
+                    InstantAction { transferPos = transferStop },
                     shooter.spinDown(),
                     InstantAction { transferPos = transferStop}
                 ))

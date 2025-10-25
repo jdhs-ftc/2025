@@ -722,4 +722,27 @@ public final class MecanumDrive {
                 }
         );
     }
+
+    public TrajectoryActionBuilder actionBuilderMirrored(Pose2d beginPose) {
+        return new TrajectoryActionBuilder(
+                TurnAction::new,
+                FollowTrajectoryAction::new,
+                new TrajectoryBuilderParams(
+                        1e-6,
+                        new ProfileParams(
+                                0.25, 0.1, 1e-2
+                        )
+                ),
+                beginPose, 0.0,
+                defaultTurnConstraints,
+                defaultVelConstraint, defaultAccelConstraint,
+                new PoseMap() {
+                    @NonNull
+                    @Override
+                    public Pose2dDual<Arclength> map(@NonNull Pose2dDual<Arclength> pose) {
+                        return new Pose2dDual<>(pose.position.x, pose.position.y.unaryMinus(), pose.heading.inverse());
+                    }
+                }
+        );
+    }
 }

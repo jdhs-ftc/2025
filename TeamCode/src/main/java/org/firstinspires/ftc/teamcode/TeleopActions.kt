@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
 import com.acmerobotics.roadrunner.InstantAction
-import com.acmerobotics.roadrunner.ParallelAction
 import com.acmerobotics.roadrunner.Pose2d
 import com.acmerobotics.roadrunner.PoseVelocity2d
 import com.acmerobotics.roadrunner.Rotation2d
@@ -37,9 +36,6 @@ import java.util.LinkedList
 @TeleOp(name = "00 Teleop Field Centric")
 class TeleopActions : ActionOpMode() {
 
-    // Declare a PIDF Controller to regulate heading
-    val headingPIDJoystick = PIDFController.PIDCoefficients(0.005, 0.0, 0.0)
-    val joystickHeadingController = PIDFController(headingPIDJoystick)
 
     val allHubs: List<LynxModule> by lazy { hardwareMap.getAll<LynxModule>(LynxModule::class.java) }
     val controlHub by lazy {
@@ -108,7 +104,6 @@ class TeleopActions : ActionOpMode() {
         // Enable Bulk Caching
         allHubs.forEach { it.bulkCachingMode == BulkCachingMode.MANUAL }
 
-        joystickHeadingController.setInputBounds(-Math.PI, Math.PI)
 
         // Telemetry Init
         telemetry.msTransmissionInterval = 50
@@ -120,7 +115,7 @@ class TeleopActions : ActionOpMode() {
 
         artifactLocator = ArtifactLocator(hardwareMap)
 
-        robot = Robot(hardwareMap, drive.localizer)
+        robot = Robot(hardwareMap, drive)
 
         robot.light.color = PoseStorage.currentTeam.color
 
@@ -306,7 +301,7 @@ class TeleopActions : ActionOpMode() {
                     targetHeading = Rotation2d.fromDouble(Math.toRadians(0.0)) + baseHeading
                 }
 
-                joystickHeadingController.targetPosition = targetHeading.toDouble()
+                robot.headingController.targetPosition = targetHeading.toDouble()
                 // Set the desired angular velocity to the heading controller output plus angular
                 // velocity feedforward
                 if (timeSinceDriverTurned.milliseconds() > 250) {
@@ -315,7 +310,7 @@ class TeleopActions : ActionOpMode() {
                         targetHeading = drive.localizer.pose.heading
                     } else {
                         headingInput =
-                            ((joystickHeadingController.update(drive.localizer.pose.heading.log())
+                            ((robot.headingController.update(drive.localizer.pose.heading.log())
                                     * MecanumDrive.PARAMS.kV
                                     * MecanumDrive.PARAMS.trackWidthTicks))
                     }

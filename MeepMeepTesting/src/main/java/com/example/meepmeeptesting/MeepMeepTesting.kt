@@ -15,7 +15,7 @@ fun main() {
             .setConstraints(60.0, 60.0, Math.toRadians(180.0), Math.toRadians(180.0), 15.0)
             .build()
 
-    val shootPose = Pose2d(-12.0, 12.0, toRadians(135.0))
+    val shootPose = Pose2d(-12.0, 12.0, toRadians(315.0))
 
     myBot.runAction(
         myBot.drive.actionBuilder(Pose2d(61.0, 12.0, toRadians(180.0)))

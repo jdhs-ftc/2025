@@ -3,8 +3,11 @@ package org.firstinspires.ftc.teamcode.mechanisms
 import android.R.attr.value
 import com.acmerobotics.roadrunner.Action
 import com.acmerobotics.roadrunner.InstantAction
+import com.acmerobotics.roadrunner.ParallelAction
+import com.acmerobotics.roadrunner.PoseVelocity2d
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
+import com.acmerobotics.roadrunner.Vector2d
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
@@ -12,10 +15,13 @@ import org.firstinspires.ftc.teamcode.helpers.FakeCRServo
 import org.firstinspires.ftc.teamcode.helpers.FakeDcMotorEx
 import org.firstinspires.ftc.teamcode.helpers.FakeServo
 import org.firstinspires.ftc.teamcode.helpers.RGBLight
+import org.firstinspires.ftc.teamcode.helpers.RaceParallelAction
+import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.rr.Localizer
+import org.firstinspires.ftc.teamcode.rr.MecanumDrive
 
-class Robot(hardwareMap: HardwareMap, localizer: Localizer) {
-    val shooter = Shooter(hardwareMap, localizer)
+class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
+    val shooter = Shooter(hardwareMap, drive.localizer)
     val transfer: Servo = hardwareMap.servo["transfer"]
 
     val intake: DcMotor = hardwareMap.dcMotor["intake"]
@@ -85,4 +91,36 @@ class Robot(hardwareMap: HardwareMap, localizer: Localizer) {
         }
 
     }
+
+    fun runIntake() = InstantAction { intakePower = intakeRun }
+    fun stopIntake() = InstantAction { intakePower = intakeStop }
+
+    val headingPID = PIDFController.PIDCoefficients(0.005, 0.0, 0.0)
+    val headingController = PIDFController(headingPID)
+    init {
+        headingController.setInputBounds(-Math.PI, Math.PI)
+    }
+
+    fun autoAim() = Action {
+        drive.updatePoseEstimate()
+        headingController.targetPosition = shooter.targetHeading.toDouble()
+        val headingInput = headingController.update(drive.localizer.pose.heading.toDouble())
+        drive.setDrivePowers(
+            PoseVelocity2d(
+                Vector2d(0.0, 0.0),
+                headingInput
+            )
+        )
+        true
+    }
+
+    fun autoFire() = RaceParallelAction(
+        autoAim(),
+                SequentialAction(
+                    shooter.spinUp(),
+                    transferFire(),
+                    SleepAction(0.5),
+                    shooter.spinDown(),
+                    InstantAction { transferPos = transferStop}
+                ))
 }

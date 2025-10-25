@@ -11,17 +11,18 @@ import org.firstinspires.ftc.teamcode.mechanisms.Robot
 import org.firstinspires.ftc.teamcode.rr.MecanumDrive
 import java.lang.Math.toRadians
 @Autonomous(preselectTeleOp = "00 Teleop Field Centric")
-class RedFar: LinearOpMode() {
+class BlueFar: LinearOpMode() {
     override fun runOpMode() {
-        val startPose = Pose2d(61.0, 12.0, toRadians(180.0))
+        // TODO Something is wrong with this startpose check logs
+        val startPose = Pose2d(61.0, -12.0, toRadians(180.0))
         val shootPose = Pose2d(-12.0, 12.0, toRadians(315.0))
 
         val drive = MecanumDrive(hardwareMap,startPose)
         val robot = Robot(hardwareMap,drive)
 
-        PoseStorage.currentTeam = Team.RED
+        PoseStorage.currentTeam = Team.BLUE
 
-        val traj = drive.actionBuilderPath(startPose)
+        val traj = drive.actionBuilderPathMirrored(startPose)
             .afterTime(0.1, robot.runIntake()) // just run the intake continuously
             .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(180.0))

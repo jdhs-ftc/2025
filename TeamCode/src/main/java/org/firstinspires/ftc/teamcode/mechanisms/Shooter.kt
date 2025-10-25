@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.mechanisms
 
 import com.acmerobotics.roadrunner.Action
+import com.acmerobotics.roadrunner.InstantAction
+import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.Vector2d
-import com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_WITHOUT_ENCODER
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -65,6 +66,8 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer): Mechanism {
 
     val pid get() = PIDFController.PIDCoefficients(p,i,d)
     var firingRpmOffset = 0.0
+
+    // TODO interplut
     val autoFiringRpm get() = firingRpms.entries.sortedBy { (key, _) -> abs(key - distance) }[0].value + firingRpmOffset
 
 
@@ -72,8 +75,6 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer): Mechanism {
     val shooter2: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "shooter2")
 
     init {
-        shooter1.mode = RUN_WITHOUT_ENCODER
-        shooter2.mode = RUN_WITHOUT_ENCODER
         shooter2.direction = Direction.REVERSE
     }
 
@@ -100,13 +101,17 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer): Mechanism {
         shooter2.power = shooter2PID.update(System.nanoTime(), 0.0, shooter2rpm)
     }
 
-    fun spinUp() = Action {
-        targetRpmGen = ::autoFiringRpm
-        return@Action !ready
-    }
+    fun spinUp() = SequentialAction(
+        InstantAction {
+            targetRpmGen = ::autoFiringRpm // only set firing speed once
+        },
+        Action {
+            return@Action !ready
+        }
+    )
 
     fun spinDown() = Action {
-        targetRpmGen = {0.0}
+        targetRpmGen = {0.0} // set firing speed in loop for safety/paranoia
         return@Action !ready
     }
 }

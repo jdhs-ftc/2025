@@ -17,8 +17,8 @@ import java.util.Objects;
 @Config
 public final class PinpointLocalizer implements Localizer {
     public static class Params {
-        public double parYTicks = -2649.0; // y position of the parallel encoder (in tick units)
-        public double perpXTicks = -1724.0; // x position of the perpendicular encoder (in tick units)
+        public double parYTicks = -643.87; // y position of the parallel encoder (in tick units)
+        public double perpXTicks = -2484.7; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();
@@ -39,8 +39,8 @@ public final class PinpointLocalizer implements Localizer {
         driver.setOffsets(mmPerTick * PARAMS.parYTicks, mmPerTick * PARAMS.perpXTicks, DistanceUnit.MM);
 
         // TODO: reverse encoder directions if needed
-        initialParDirection = GoBildaPinpointDriverv2.EncoderDirection.REVERSED;
-        initialPerpDirection = GoBildaPinpointDriverv2.EncoderDirection.REVERSED;
+        initialParDirection = GoBildaPinpointDriverv2.EncoderDirection.FORWARD;
+        initialPerpDirection = GoBildaPinpointDriverv2.EncoderDirection.FORWARD;
 
         driver.setEncoderDirections(initialParDirection, initialPerpDirection);
 

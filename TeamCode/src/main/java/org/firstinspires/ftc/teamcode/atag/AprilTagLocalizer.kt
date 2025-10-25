@@ -49,7 +49,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
      */
     private val cameraPosition = Position(
         DistanceUnit.INCH,
-        7.0, 0.0, 10.0, 0
+        0.0, 0.0, 0.0, 0
     )
     private val cameraOrientation = YawPitchRollAngles(
         AngleUnit.DEGREES,

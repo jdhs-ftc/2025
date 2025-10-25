@@ -37,6 +37,10 @@ buildscript {
         maven {
             url "https://repo.dairy.foundation/releases"
         }
+        maven {
+            name "nullftcReleases"
+            url "https://maven.nullftc.dev/releases"
+        }
     }
     dependencies {
         classpath "dev.frozenmilk:Load:0.2.3"
@@ -70,5 +74,6 @@ dependencies {
     implementation "dev.frozenmilk.sinister:Sloth:0.2.4"
     implementation("com.acmerobotics.slothboard:dashboard:0.2.4+0.4.17") // TODO update
     implementation("org.psilynx:psikit:0.0.4")
+    //implementation "dev.nullftc:Profiler:SNAPSHOT-daa44e3"
 
 }

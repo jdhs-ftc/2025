@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Pose2d
 import com.noahbres.meepmeep.MeepMeep
 import com.noahbres.meepmeep.MeepMeep.Background
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder
+import java.lang.Math.toRadians
 
 
 fun main() {
@@ -14,16 +15,32 @@ fun main() {
             .setConstraints(60.0, 60.0, Math.toRadians(180.0), Math.toRadians(180.0), 15.0)
             .build()
 
+    val shootPose = Pose2d(-12.0, 12.0, toRadians(135.0))
+
     myBot.runAction(
-        myBot.drive.actionBuilder(Pose2d(0.0, 0.0, 0.0))
-            .lineToX(30.0)
-            .turn(Math.toRadians(90.0))
-            .lineToY(30.0)
-            .turn(Math.toRadians(90.0))
-            .lineToX(0.0)
-            .turn(Math.toRadians(90.0))
-            .lineToY(0.0)
-            .turn(Math.toRadians(90.0))
+        myBot.drive.actionBuilder(Pose2d(61.0, 12.0, toRadians(180.0)))
+            .setTangent(toRadians(180.0))
+            .splineToSplineHeading(shootPose,toRadians(180.0))
+            // fire
+            .waitSeconds(0.5)
+            .setTangent(toRadians(90.0))
+            // start intake
+            .splineToSplineHeading(Pose2d(-10.0, 45.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(shootPose, toRadians(270.0))
+            // fire
+            .waitSeconds(0.5)
+            .setTangent(toRadians(45.0))
+            // start intake
+            .splineToSplineHeading(Pose2d(14.0,45.0,toRadians(90.0)),toRadians(90.0))
+            .splineToSplineHeading(shootPose, toRadians(240.0))
+            // fire
+            .waitSeconds(0.5)
+            .setTangent(toRadians(30.0))
+            // start intake
+            .splineToSplineHeading(Pose2d(40.0,45.0,toRadians(90.0)),toRadians(90.0))
+            .splineToSplineHeading(shootPose, toRadians(210.0))
+            // fire
+
             .build()
     )
 

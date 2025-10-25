@@ -184,7 +184,9 @@ class TeleopActions : ActionOpMode() {
 
             }
 
-            if (padToggleTransfer) robot.toggleTransfer()
+            if (padToggleTransfer) {
+                if (robot.transferPos == robot.transferStop) run(robot.transferFire()) else robot.transferPos = robot.transferStop
+            }
             if (padToggleIntake) robot.toggleIntake()
 
 

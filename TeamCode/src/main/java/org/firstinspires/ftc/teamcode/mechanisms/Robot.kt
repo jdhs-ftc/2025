@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.mechanisms
 
+import android.R.attr.value
 import com.acmerobotics.roadrunner.Action
+import com.acmerobotics.roadrunner.InstantAction
+import com.acmerobotics.roadrunner.SequentialAction
+import com.acmerobotics.roadrunner.SleepAction
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
@@ -29,8 +33,13 @@ class Robot(hardwareMap: HardwareMap, localizer: Localizer) {
         }
 
     // TODO seems wrong (but arm transfer is cooked anyway)
-    val transferShoot = 0.0
-    val transferStop = 0.30
+    val transferStop = 0.0
+    val transferMid = 0.10
+    val transferShoot = 0.30
+
+    val transferPosList = listOf(0.0,0.10,0.30)
+    val transferIndex = 0
+
 
     var transferPos = 0.0
         set(value) {
@@ -45,6 +54,18 @@ class Robot(hardwareMap: HardwareMap, localizer: Localizer) {
             transferStop
         }
     }
+
+    fun transferFire() = SequentialAction(
+        InstantAction {
+            transferPos = transferMid
+        },
+        SleepAction(0.50),
+        InstantAction {
+            if (transferPos == transferMid) {
+                transferPos = transferShoot
+            }
+        }
+    )
 
     val intakeRun = -1.0
     val intakeStop = 0.0

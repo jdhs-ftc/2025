@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto
 
 import com.acmerobotics.roadrunner.Pose2d
+import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.ftc.runBlocking
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -49,7 +50,12 @@ class RedFar: LinearOpMode() {
 
         waitForStart()
 
-        runBlocking(RaceParallelAction(traj,robot.updateAction()))
+        runBlocking(
+            RaceParallelAction(
+                SequentialAction(traj, robot.autoFire()),
+                robot.updateAction()
+            )
+        )
 
         PoseStorage.currentPose = drive.localizer.pose
 

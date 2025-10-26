@@ -38,7 +38,7 @@ import java.util.LinkedList
 class TeleopActions : ActionOpMode() {
 
     // Declare a PIDF Controller to regulate heading
-    val headingPIDJoystick = PIDFController.PIDCoefficients(0.005, 0.0, 0.0)
+    val headingPIDJoystick = PIDFController.PIDCoefficients(0.5, 0.0, 0.0)
     val joystickHeadingController = PIDFController(headingPIDJoystick)
 
     val allHubs: List<LynxModule> by lazy { hardwareMap.getAll<LynxModule>(LynxModule::class.java) }

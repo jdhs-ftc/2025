@@ -109,7 +109,7 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
     fun runIntake() = InstantAction { intakePower = intakeRun }
     fun stopIntake() = InstantAction { intakePower = intakeStop }
 
-    val headingPID = PIDFController.PIDCoefficients(0.005, 0.0, 0.0)
+    val headingPID = PIDFController.PIDCoefficients(0.5, 0.0, 0.0)
     val headingController = PIDFController(headingPID)
     init {
         headingController.setInputBounds(-Math.PI, Math.PI)

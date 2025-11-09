@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.helpers.PoseStorage
+import org.firstinspires.ftc.teamcode.helpers.control.NullLocalizer
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.helpers.interp
 import org.firstinspires.ftc.teamcode.helpers.registerTunable
@@ -16,7 +17,7 @@ import java.lang.Math.toRadians
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 
-class Shooter(hardwareMap: HardwareMap, val localizer: Localizer): Mechanism {
+class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer()): Mechanism {
     companion object {
         var p = 0.0
         var i = 0.0

@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.mechanisms
 
-import android.R.attr.value
 import com.acmerobotics.roadrunner.Action
 import com.acmerobotics.roadrunner.InstantAction
-import com.acmerobotics.roadrunner.ParallelAction
 import com.acmerobotics.roadrunner.PoseVelocity2d
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
@@ -12,18 +10,14 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.helpers.Color
-import org.firstinspires.ftc.teamcode.helpers.FakeCRServo
-import org.firstinspires.ftc.teamcode.helpers.FakeDcMotorEx
-import org.firstinspires.ftc.teamcode.helpers.FakeServo
 import org.firstinspires.ftc.teamcode.helpers.RGBLight
 import org.firstinspires.ftc.teamcode.helpers.RaceParallelAction
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
-import org.firstinspires.ftc.teamcode.rr.Localizer
 import org.firstinspires.ftc.teamcode.rr.MecanumDrive
 
 class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
     val shooter = Shooter(hardwareMap, drive.localizer)
-    val transfer: Servo = hardwareMap.servo["transfer"]
+    val transfer: DcMotor = hardwareMap.dcMotor["transfer"]
 
     val intake: DcMotor = hardwareMap.dcMotor["intake"]
 
@@ -54,21 +48,20 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
 
     // TODO seems wrong (but arm transfer is cooked anyway)
     val transferStop = 0.0
-    val transferMid = 0.10
     val transferShoot = 0.30
 
     val transferPosList = listOf(0.0,0.10,0.30)
     val transferIndex = 0
 
 
-    var transferPos = 0.0
+    var transferSpeed = 0.0
         set(value) {
-            transfer.position = value
+            transfer.power = value
             field = value
         }
 
     fun toggleTransfer() {
-        transferPos = if (transferPos == transferStop) {
+        transferSpeed = if (transferSpeed == transferStop) {
             transferShoot
         } else {
             transferStop
@@ -76,15 +69,7 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
     }
 
     fun transferFire() = SequentialAction(
-        InstantAction {
-            transferPos = transferMid
-        },
-        SleepAction(0.50),
-        InstantAction {
-            if (transferPos == transferMid) {
-                transferPos = transferShoot
-            }
-        }
+        InstantAction { transferSpeed = transferShoot }
     )
 
     val intakeRun = -1.0
@@ -134,12 +119,7 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
                     shooter.spinUp(),
                     transferFire(),
                     SleepAction(0.5),
-                    InstantAction { transferPos = transferStop },
-                    SleepAction(0.25),
-                    transferFire(),
-                    SleepAction(0.5),
-                    InstantAction { transferPos = transferStop },
                     shooter.spinDown(),
-                    InstantAction { transferPos = transferStop}
+                    InstantAction { transferSpeed = transferStop}
                 ))
 }

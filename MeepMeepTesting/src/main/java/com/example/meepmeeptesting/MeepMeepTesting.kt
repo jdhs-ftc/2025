@@ -19,27 +19,25 @@ fun main() {
 
     myBot.runAction(
         myBot.drive.actionBuilder(Pose2d(61.0, 12.0, toRadians(180.0)))
+            //.afterTime(0.1, robot.runIntake()) // just run the intake continuously
             .setTangent(toRadians(180.0))
-            .splineToSplineHeading(shootPose,toRadians(180.0))
-            // fire
-            .waitSeconds(0.5)
+            .splineToSplineHeading(shootPose, toRadians(180.0))
+            //.stopAndAdd(robot.autoFire())
             .setTangent(toRadians(90.0))
-            // start intake
             .splineToSplineHeading(Pose2d(-10.0, 45.0, toRadians(90.0)), toRadians(90.0))
             .splineToSplineHeading(shootPose, toRadians(270.0))
             // fire
-            .waitSeconds(0.5)
+            //.stopAndAdd(robot.autoFire())
             .setTangent(toRadians(45.0))
             // start intake
-            .splineToSplineHeading(Pose2d(14.0,45.0,toRadians(90.0)),toRadians(90.0))
+            .splineToSplineHeading(Pose2d(14.0, 45.0, toRadians(90.0)), toRadians(90.0))
             .splineToSplineHeading(shootPose, toRadians(240.0))
-            // fire
-            .waitSeconds(0.5)
+            //.stopAndAdd(robot.autoFire())
             .setTangent(toRadians(30.0))
             // start intake
-            .splineToSplineHeading(Pose2d(40.0,45.0,toRadians(90.0)),toRadians(90.0))
+            .splineToSplineHeading(Pose2d(36.0, 45.0, toRadians(90.0)), toRadians(90.0))
             .splineToSplineHeading(shootPose, toRadians(210.0))
-            // fire
+            //.stopAndAdd(robot.autoFire())
 
             .build()
     )

@@ -147,18 +147,15 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         get() = baseLocalizer.pose
         set(value) = baseLocalizer.setPose(value)
 
-    var offset = Twist2d(
+    var offset = Pose2d(
         Vector2d(0.0,0.0), 0.0)
 
-    override fun getPose(): Pose2d = basePose + offset
+    override fun getPose(): Pose2d = offset * basePose
     override fun setPose(pose: Pose2d) {
         basePose = pose
-        offset = Twist2d(
+        offset = Pose2d(
             Vector2d(0.0, 0.0), 0.0
         )
-    }
-    fun setPoseViaOffset(pose: Pose2d) {
-        offset = pose - basePose
     }
     
     // nicer logging
@@ -185,7 +182,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
     override fun update(): PoseVelocity2d {
         val vel = baseLocalizer.update()
         log("AprilTagLocalizer/basePose", PoseMessage(basePose))
-        log("AprilTagLocalizer/offset", TwistMessage(offset))
+        log("AprilTagLocalizer/offset", PoseMessage(offset))
         log("AprilTagLocalizer/pose", PoseMessage(pose))
         log("AprilTagLocalizer/correctedThisLoop", false)
         if (!enabled) return vel
@@ -211,7 +208,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         } // end for() loop
 
         foundPoses.sortBy { (it - pose).line.norm() }
-        offset = (foundPoses.firstOrNull() ?: return vel) - basePose
+        offset = (foundPoses.firstOrNull() ?: return vel).minusExp(basePose) // TODO TEST
 
         log("AprilTagLocalizer/pose", PoseMessage(pose))
         log("AprilTagLocalizer/correctedThisLoop", true)

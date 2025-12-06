@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.Vector2d
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.helpers.FloodgateMotor
 import org.firstinspires.ftc.teamcode.helpers.PoseStorage
 import org.firstinspires.ftc.teamcode.helpers.control.NullLocalizer
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
@@ -70,7 +71,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
     var firingRpmOffset = 0.0
 
     // TODO interplut
-    val autoFiringRpm get() = firingRpms.interp(distance) + firingRpmOffset//firingRpms.entries.sortedBy { (key, _) -> abs(key - distance) }[0].value + firingRpmOffset
+    val autoFiringRpm get() = 6000.0 //firingRpms.interp(distance) + firingRpmOffset//firingRpms.entries.sortedBy { (key, _) -> abs(key - distance) }[0].value + firingRpmOffset
 
 
     val shooter1: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "shooter1")

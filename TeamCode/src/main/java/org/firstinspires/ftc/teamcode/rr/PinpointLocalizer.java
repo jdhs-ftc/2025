@@ -39,8 +39,8 @@ public final class PinpointLocalizer implements Localizer {
         driver.setOffsets(mmPerTick * PARAMS.parYTicks, mmPerTick * PARAMS.perpXTicks, DistanceUnit.MM);
 
         // TODO: reverse encoder directions if needed
-        initialParDirection = GoBildaPinpointDriverv2.EncoderDirection.FORWARD;
-        initialPerpDirection = GoBildaPinpointDriverv2.EncoderDirection.FORWARD;
+        initialParDirection = GoBildaPinpointDriverv2.EncoderDirection.REVERSED;
+        initialPerpDirection = GoBildaPinpointDriverv2.EncoderDirection.REVERSED;
 
         driver.setEncoderDirections(initialParDirection, initialPerpDirection);
 

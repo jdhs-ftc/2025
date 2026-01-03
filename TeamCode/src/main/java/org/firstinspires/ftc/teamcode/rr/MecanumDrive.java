@@ -43,6 +43,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.atag.AprilTagLocalizer;
+import org.firstinspires.ftc.teamcode.helpers.FloodgateMotor2;
 import org.firstinspires.ftc.teamcode.rr.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.rr.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.rr.messages.MecanumLocalizerInputsMessage;
@@ -227,10 +228,10 @@ public final class MecanumDrive {
 
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = hardwareMap.get(DcMotorEx.class, "left_front");
-        leftBack = hardwareMap.get(DcMotorEx.class, "left_back");
-        rightBack = hardwareMap.get(DcMotorEx.class, "right_back");
-        rightFront = hardwareMap.get(DcMotorEx.class, "right_front");
+        leftFront = new FloodgateMotor2(hardwareMap.get(DcMotorEx.class, "left_front"));
+        leftBack = new FloodgateMotor2( hardwareMap.get(DcMotorEx.class, "left_back"));
+        rightBack = new FloodgateMotor2(hardwareMap.get(DcMotorEx.class, "right_back"));
+        rightFront = new FloodgateMotor2(hardwareMap.get(DcMotorEx.class, "right_front"));
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -240,7 +241,8 @@ public final class MecanumDrive {
         // TODO: reverse motor directions if needed
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        //rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        //rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
         lazyImu = new LazyHardwareMapImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
@@ -248,7 +250,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new AprilTagLocalizer(hardwareMap,new PinpointLocalizer(hardwareMap, PARAMS.inPerTick, pose));
+        localizer = new PinpointLocalizer(hardwareMap, PARAMS.inPerTick, pose);//new AprilTagLocalizer(hardwareMap,new PinpointLocalizer(hardwareMap, PARAMS.inPerTick, pose));
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }

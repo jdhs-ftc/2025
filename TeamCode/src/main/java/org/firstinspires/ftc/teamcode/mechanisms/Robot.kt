@@ -46,9 +46,8 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
             return@Action true
         }
 
-    // TODO seems wrong (but arm transfer is cooked anyway)
     val transferStop = 0.0
-    val transferShoot = 0.30
+    val transferShoot = 1.0
 
     val transferPosList = listOf(0.0,0.10,0.30)
     val transferIndex = 0

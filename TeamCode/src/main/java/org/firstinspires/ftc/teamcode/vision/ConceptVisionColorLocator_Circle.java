@@ -175,6 +175,7 @@ public class ConceptVisionColorLocator_Circle extends LinearOpMode {
         VisionPortal portal = new VisionPortal.Builder()
                 .addProcessors(purpleLocator,greenLocator)
                 .setCameraResolution(new Size(320, 240))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 2"))
                 .build();
 

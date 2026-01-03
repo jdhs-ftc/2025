@@ -71,7 +71,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
     var firingRpmOffset = 0.0
 
     // TODO interplut
-    val autoFiringRpm get() = 6000.0 //firingRpms.interp(distance) + firingRpmOffset//firingRpms.entries.sortedBy { (key, _) -> abs(key - distance) }[0].value + firingRpmOffset
+    val autoFiringRpm get() = firingRpms.interp(distance) + firingRpmOffset//firingRpms.entries.sortedBy { (key, _) -> abs(key - distance) }[0].value + firingRpmOffset
 
 
     val shooter1: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "shooter1")

@@ -83,7 +83,7 @@ class TeleopActions : ActionOpMode() {
     val timeSinceDriverTurned = ElapsedTime()
 
 
-    lateinit var artifactLocator: ArtifactLocator
+        //lateinit var artifactLocator: ArtifactLocator
 
     enum class AimMode {
         NONE,
@@ -119,7 +119,7 @@ class TeleopActions : ActionOpMode() {
 
         drive = MecanumDrive(hardwareMap, startPose)
 
-        artifactLocator = ArtifactLocator(hardwareMap)
+        //artifactLocator = ArtifactLocator(hardwareMap)
 
         robot = Robot(hardwareMap, drive)
 
@@ -312,7 +312,7 @@ class TeleopActions : ActionOpMode() {
                 // velocity feedforward
                 if (timeSinceDriverTurned.milliseconds() > 250) {
                     if (aimMode == AimMode.ARTIFACT) {
-                        headingInput += artifactLocator.correct()
+                        //headingInput += artifactLocator.correct()
                         targetHeading = drive.localizer.pose.heading
                     } else {
                         headingInput =
@@ -415,7 +415,7 @@ class TeleopActions : ActionOpMode() {
                 telemetry.addData("actions", UniqueActionQueue.runningUniqueActions)
             }
             telemetry.addData("aimMode", aimMode)
-            telemetry.addData("blobPos", artifactLocator.currentPos)
+            //telemetry.addData("blobPos", artifactLocator.currentPos)
             telemetry.addData("team", PoseStorage.currentTeam)
             telemetry.addData("distance in", robot.shooter.distance)
             telemetry.addData("targetRpm rpm", robot.shooter.targetRpm)

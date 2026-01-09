@@ -356,6 +356,9 @@ class TeleopActions : ActionOpMode() {
             if (padMuchHigherRpm) robot.shooter.firingRpmOffset += 500.0
 
 
+            if (robot.laserCombo.intakeRising) gamepad1.rumbleBlips(1)
+
+
 
 
             robot.update()
@@ -424,6 +427,9 @@ class TeleopActions : ActionOpMode() {
             telemetry.addData("currentRpm2 rpm", robot.shooter.shooter2rpm)
             telemetry.addData("headingError rad",
                 (drive.localizer.pose.heading - robot.shooter.targetHeading))
+            telemetry.addData("intakeLaserState",robot.laserCombo.intakeState)
+            telemetry.addData("shooterLaserState",robot.laserCombo.shooterState)
+            telemetry.addData("balls",robot.laserCombo.balls)
             telemetry.update()
         }
     }

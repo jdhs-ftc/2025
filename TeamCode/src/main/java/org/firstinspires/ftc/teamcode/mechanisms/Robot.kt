@@ -7,26 +7,38 @@ import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
 import com.acmerobotics.roadrunner.Vector2d
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.helpers.Color
+import org.firstinspires.ftc.teamcode.helpers.LogTelemetry
 import org.firstinspires.ftc.teamcode.helpers.RGBLight
 import org.firstinspires.ftc.teamcode.helpers.RaceParallelAction
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.rr.MecanumDrive
+import kotlin.jvm.java
 
 class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
+    val telemetry = LogTelemetry("Robot/")
     val shooter = Shooter(hardwareMap, drive.localizer)
     val transfer: DcMotor = hardwareMap.dcMotor["transfer"]
 
     val intake: DcMotor = hardwareMap.dcMotor["intake"]
 
-    val hw = arrayOf(shooter)
+
 
     val light = RGBLight(hardwareMap.servo["light"])
 
+    val intakeSensor: DigitalChannel = hardwareMap.digitalChannel["intakeSensor"]
+
+    val shooterSensor: DigitalChannel = hardwareMap.digitalChannel["shooterSensor"]
+
+    val laserCombo = LaserCombo(intakeSensor, shooterSensor)
+
+    val hw = arrayOf(shooter,laserCombo)
+
     fun update() {
-        hw.forEach { it.update() }
+        hw.forEach { it.update(telemetry) }
         when (intakePower) {
             intakeRun -> {
                 light.color = Color.GREEN
@@ -38,6 +50,12 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
                 light.color = Color.BLUE
             }
         }
+        telemetry.addData("intakeSensor", intakeSensor.state)
+        telemetry.addData("shooterSensor", shooterSensor.state)
+        telemetry.addData("light",light.color)
+        telemetry.addData("transferSpeed",transferSpeed)
+        telemetry.addData("intakeSpeed",intakePower)
+        telemetry.update()
     }
 
     fun updateAction() =
@@ -47,10 +65,7 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
         }
 
     val transferStop = 0.0
-    val transferShoot = 1.0
-
-    val transferPosList = listOf(0.0,0.10,0.30)
-    val transferIndex = 0
+    val transferShoot = -1.0
 
 
     var transferSpeed = 0.0
@@ -71,9 +86,9 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
         InstantAction { transferSpeed = transferShoot }
     )
 
-    val intakeRun = -1.0
+    val intakeRun = 1.0
     val intakeStop = 0.0
-    val intakeReverse = 1.0
+    val intakeReverse = -1.0
 
     var intakePower = 0.0
         set(value) {

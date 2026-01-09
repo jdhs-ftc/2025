@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.helpers.FloodgateMotor
+import org.firstinspires.ftc.teamcode.helpers.LogTelemetry
 import org.firstinspires.ftc.teamcode.helpers.PoseStorage
 import org.firstinspires.ftc.teamcode.helpers.control.NullLocalizer
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
@@ -96,12 +97,21 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
 
     val ready get() = (shooter1rpm-targetRpm).absoluteValue < readyThresholdRpm && (shooter2rpm-targetRpm).absoluteValue < readyThresholdRpm
 
-    override fun update() {
+    override fun update(telemetry: LogTelemetry) {
         shooter1PID.targetVelocity = targetRpm
         shooter2PID.targetVelocity = targetRpm
 
         shooter1.power = shooter1PID.update(System.nanoTime(), 0.0, shooter1rpm)
-        shooter2.power = shooter2PID.update(System.nanoTime(), 0.0, shooter2rpm)
+        shooter2.power = shooter2PID.update(System.nanoTime(), 0.0, shooter2rpm) * -1
+
+        telemetry.addData("shooter/shooter1rpm", shooter1rpm)
+        telemetry.addData("shooter/shooter2rpm", shooter2rpm)
+        telemetry.addData("shooter/targetRpm", targetRpm)
+        telemetry.addData("shooter/ready", ready)
+        telemetry.addData("shooter/distance", distance)
+        telemetry.addData("shooter/targetHeading", targetHeading)
+        telemetry.addData("shooter/targetGoal", targetGoal)
+        telemetry.addData("shooter/localizerPose", localizer.pose)
     }
 
     fun spinUp() = SequentialAction(

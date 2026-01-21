@@ -202,16 +202,46 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
             if (detection.metadata != null) {
                 // Only use tags that don't have Obelisk in them
                 if (!detection.metadata.name.contains("Obelisk")) {
+
                     foundPoses.add(Pose2d(detection.robotPose.position.x, detection.robotPose.position.y, detection.robotPose.orientation.getYaw(AngleUnit.RADIANS)))
+
+                    log("AprilTagLocalizer/detection${detection.id}/robot X",detection.robotPose.position.x)
+                    log(
+                        "AprilTagLocalizer/detection${detection.id}/robot y",
+                        detection.robotPose.position.y
+                    )
+                    log(
+                        "AprilTagLocalizer/detection${detection.id}/robot z",
+                        detection.robotPose.position.z
+                    )
+                    log(
+                        "AprilTagLocalizer/detection${detection.id}/robot heading",
+                        detection.robotPose.orientation.yaw
+                    )
+                    log(
+                        "AprilTagLocalizer/detection${detection.id}/robot pitch",
+                        detection.robotPose.orientation.pitch
+                    )
+                    log(
+                        "AprilTagLocalizer/detection${detection.id}/robot roll",
+                        detection.robotPose.orientation.roll
+                    )
+
+
+
+
                 }
             }
         } // end for() loop
 
         foundPoses.sortBy { (it - pose).line.norm() }
-        offset = (foundPoses.firstOrNull() ?: return vel).minusExp(basePose) // TODO TEST
+        baseLocalizer.setPose(foundPoses.firstOrNull() ?: return vel)
+        //offset = (foundPoses.firstOrNull() ?: return vel).minusExp(basePose) // TODO TEST
 
         log("AprilTagLocalizer/pose", PoseMessage(pose))
         log("AprilTagLocalizer/correctedThisLoop", true)
+
+
 
 
 

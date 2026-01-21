@@ -18,10 +18,12 @@ fun main() {
     val shootPose = Pose2d(-12.0, 12.0, toRadians(315.0))
 
     myBot.runAction(
-        myBot.drive.actionBuilder(Pose2d(61.0, 12.0, toRadians(180.0)))
+        // CLOSE AUTO
+        myBot.drive.actionBuilder(Pose2d(-55.0, 55.0, toRadians(135.0)))
             //.afterTime(0.1, robot.runIntake()) // just run the intake continuously
-            .setTangent(toRadians(180.0))
-            .splineToSplineHeading(shootPose, toRadians(180.0))
+            .setTangent(toRadians(315.0))
+            .setReversed(true)
+            .splineToSplineHeading(shootPose, toRadians(315.0))
             //.stopAndAdd(robot.autoFire())
             .setTangent(toRadians(90.0))
             .splineToSplineHeading(Pose2d(-10.0, 45.0, toRadians(90.0)), toRadians(90.0))

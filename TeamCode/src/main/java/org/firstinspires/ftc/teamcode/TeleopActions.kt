@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
+import android.graphics.Color
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
@@ -124,6 +125,7 @@ class TeleopActions : ActionOpMode() {
         robot = Robot(hardwareMap, drive)
 
         robot.light.color = PoseStorage.currentTeam.color
+        var firing = false
 
 
         waitForStart()
@@ -164,29 +166,45 @@ class TeleopActions : ActionOpMode() {
 
             val padToggleIntake = gamepad1.cross && !previousGamepad1.cross
             val padOuttake = gamepad1.triangle
-            val padToggleTransfer = gamepad1.circle && !previousGamepad1.circle
-            val padToggleAimFire = gamepad1.right_stick_button && !previousGamepad1.right_stick_button
+            val padStartTransfer = gamepad1.circle && !previousGamepad1.circle
+            val padStopTransfer = !gamepad1.circle && previousGamepad1.circle
+            val padToggleAim = false//gamepad1.left_bumper && !previousGamepad1.left_bumper
+            val padToggleFire = gamepad1.right_bumper && !previousGamepad1.right_bumper
+            val padShooterReverse = gamepad1.left_bumper && !previousGamepad1.left_bumper
+            val padShooterReverseStop = previousGamepad1.right_bumper && !previousGamepad1.right_bumper
+
+            if (padShooterReverse) {
+                robot.shooter.targetRpmGen = { -1000.0}
+            }
+            if (padShooterReverseStop) robot.shooter.targetRpmGen = { 0.0 }
 
             if (padOuttake) robot.intake.power = 1.0
             // Misc/Obscure
             // Prepare to fire
-            if (padToggleAimFire) {
+            if (padToggleAim) {
                 if (aimMode == AimMode.NONE) {
                     aimMode = AimMode.GOAL
-                    run(
-                        SequentialAction(
-                            robot.shooter.spinUp(),
-                        InstantAction { gamepad1.rumbleBlips(1) }
-                    ))
+                    gamepad1.rumbleBlips(2)
+                    robot.light.color = PoseStorage.currentTeam.color
+
                 } else {
                     aimMode = AimMode.NONE
-                    run(robot.shooter.spinDown())
+                    gamepad1.rumbleBlips(1)
+                    robot.light.color = org.firstinspires.ftc.teamcode.helpers.Color.GREEN
                 }
+            }
+
+            if (padToggleFire) {
+               // firing = !firing // ??? confounding warning
+                if (!firing) run(robot.shooter.spinUp()) else run(robot.shooter.spinDown())
+                firing = !firing
 
             }
 
-            if (padToggleTransfer) {
-                if (robot.transferSpeed == robot.transferStop) run(robot.transferFire()) else robot.transferSpeed = robot.transferStop
+            if (padStartTransfer) {
+                run(robot.transferFire())
+            } else if(padStopTransfer) {
+                robot.transferSpeed = robot.transferStop
             }
             if (padToggleIntake) robot.toggleIntake()
 
@@ -279,7 +297,7 @@ class TeleopActions : ActionOpMode() {
 
             var headingInput = 0.0
             if (gamepad1.left_trigger > 0.1 || gamepad1.right_trigger > 0.1) {
-                headingInput = (gamepad1.left_trigger - gamepad1.right_trigger) * speed * 0.50
+                headingInput = (gamepad1.left_trigger - gamepad1.right_trigger) * speed * 1.0
                 targetHeading = drive.localizer.pose.heading
                 timeSinceDriverTurned.reset()
             } else {
@@ -340,8 +358,8 @@ class TeleopActions : ActionOpMode() {
 
             // update RR, update motor controllers
 
-            val padSpinUp = gamepad1.right_bumper && !previousGamepad1.right_bumper
-            val padSpinDown = gamepad1.left_bumper && !previousGamepad1.left_bumper
+            val padSpinUp = false//gamepad1.right_bumper && !previousGamepad1.right_bumper
+            val padSpinDown = false //gamepad1.left_bumper && !previousGamepad1.left_bumper
             val padLowerRpm = false //gamepad1.dpad_left && !previousGamepad1.dpad_left
             val padHigherRpm = false //gamepad1.dpad_right && !previousGamepad1.dpad_right
             val padMuchLowerRpm = gamepad1.dpad_down && !previousGamepad1.dpad_down
@@ -430,6 +448,7 @@ class TeleopActions : ActionOpMode() {
             telemetry.addData("intakeLaserState",robot.laserCombo.intakeState)
             telemetry.addData("shooterLaserState",robot.laserCombo.shooterState)
             telemetry.addData("balls",robot.laserCombo.balls)
+
             telemetry.update()
         }
     }

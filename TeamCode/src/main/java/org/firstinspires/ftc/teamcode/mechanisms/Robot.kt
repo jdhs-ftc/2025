@@ -39,17 +39,6 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
 
     fun update() {
         hw.forEach { it.update(telemetry) }
-        when (intakePower) {
-            intakeRun -> {
-                light.color = Color.GREEN
-            }
-            intakeReverse -> {
-                light.color = Color.RED
-            }
-            else -> {
-                light.color = Color.BLUE
-            }
-        }
         telemetry.addData("intakeSensor", intakeSensor.state)
         telemetry.addData("shooterSensor", shooterSensor.state)
         telemetry.addData("light",light.color)
@@ -65,7 +54,7 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
         }
 
     val transferStop = 0.0
-    val transferShoot = -1.0
+    val transferShoot = 1.0
 
 
     var transferSpeed = 0.0
@@ -86,9 +75,9 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
         InstantAction { transferSpeed = transferShoot }
     )
 
-    val intakeRun = 1.0
+    val intakeRun = -1.0
     val intakeStop = 0.0
-    val intakeReverse = -1.0
+    val intakeReverse = 1.0
 
     var intakePower = 0.0
         set(value) {

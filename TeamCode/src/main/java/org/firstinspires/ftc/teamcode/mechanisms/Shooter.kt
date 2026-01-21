@@ -35,7 +35,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
          */
 
         // 1800 at 45 deg? at >6 ft
-        var firingRpms = mapOf(Pair(90.0,1800.0),Pair(140.0,2200.0))
+        var firingRpms = mapOf(Pair(90.0,2500.0),Pair(140.0,2500.0))//5000.0))
         var blueGoal = Vector2d(-72.0, -80.0)
         var redGoal = Vector2d(-72.0, 80.0)
         var shooterX = 0.0

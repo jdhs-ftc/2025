@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.helpers.interp
 import org.firstinspires.ftc.teamcode.helpers.registerTunable
 import org.firstinspires.ftc.teamcode.rr.Localizer
+import org.opencv.imgproc.Imgproc.threshold
 import java.lang.Math.toRadians
 import kotlin.math.abs
 import kotlin.math.absoluteValue
@@ -27,7 +28,9 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
         var kV = 2.2e-4
         var kA = 0.0
         var kStatic = 0.0
+        var lastReady = false
         var readyThresholdRpm = 50.0 // could be 100.0
+        var notReadyThresholdRpm = 200.0
         /*
         TABLE
         1800 at 90
@@ -35,9 +38,9 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
          */
 
         // 1800 at 45 deg? at >6 ft
-        var firingRpms = mapOf(Pair(90.0,2500.0),Pair(140.0,2500.0))//5000.0))
-        var blueGoal = Vector2d(-72.0, -80.0)
-        var redGoal = Vector2d(-72.0, 80.0)
+        var firingRpms = mapOf(Pair(90.0,1949.0),Pair(140.0,1949.0))//5000.0))
+        var blueGoal = Vector2d(-70.0, -85.0)
+        var redGoal = Vector2d(-70.0, 85.0)
         var shooterX = 0.0
         var shooterY = 0.0
         var shooterZ = 0.0
@@ -79,7 +82,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
     val shooter2: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "shooter2")
 
     init {
-        shooter2.direction = Direction.REVERSE
+        shooter1.direction = Direction.REVERSE
     }
 
     val shooter1PID =
@@ -95,7 +98,20 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
     val targetRpm
         get() = targetRpmGen()
 
-    val ready get() = (shooter1rpm-targetRpm).absoluteValue < readyThresholdRpm && (shooter2rpm-targetRpm).absoluteValue < readyThresholdRpm
+    val ready: Boolean get() {
+        var threshold = readyThresholdRpm
+        if (lastReady) {
+            threshold = notReadyThresholdRpm
+        }
+
+        if ( (shooter1rpm-targetRpm).absoluteValue < threshold && (shooter2rpm-targetRpm).absoluteValue < threshold) {
+            lastReady = true
+            return true
+        } else {
+            lastReady = false
+            return  false
+        }
+    }
 
     override fun update(telemetry: LogTelemetry) {
         shooter1PID.targetVelocity = targetRpm
@@ -118,13 +134,19 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
         InstantAction {
             targetRpmGen = ::autoFiringRpm // only set firing speed once
         },
-        Action {
-            return@Action !ready
-        }
+        waitTillReady()
     )
 
     fun spinDown() = Action {
         targetRpmGen = {0.0} // set firing speed in loop for safety/paranoia
         return@Action !ready
+    }
+
+    fun waitTillReady() = Action {
+        return@Action  !ready
+    }
+
+    fun waitTillFire() = Action{
+        return@Action ready
     }
 }

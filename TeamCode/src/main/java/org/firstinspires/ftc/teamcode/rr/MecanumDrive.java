@@ -68,17 +68,17 @@ public final class MecanumDrive {
         // drive model parameters
         public double inPerTick = 0.001978956001911830; // tuned 0.001989620811433688; // gb pretuned: 0.001978956001911830?, 19.89436789 ticks/mm
         public double lateralInPerTick = 0.0015026501790164643;//0.0014636020006047134; //inPerTick;
-        public double trackWidthTicks = 5015.4; //5353; //18747;
+        public double trackWidthTicks = 5000.0; //5353; //18747;
 
         // feedforward parameters (in tick units)
-        public double kS = 2.13260994449986;//1.53011059038292;
-        public double kV = 0.0002794608780904037;//0.0002487959649438286;
+        public double kS = 1.1019950349413326;//2.13260994449986;//1.53011059038292;
+        public double kV = 0.0002777417948915767; //0.0002794608780904037;//0.0002487959649438286;
         public double kA = 1.0e-4;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 50;
-        public double minProfileAccel = -80;
-        public double maxProfileAccel = 80;
+        public double maxWheelVel = 80;
+        public double minProfileAccel = -100;
+        public double maxProfileAccel = 100;
 
         // turn profile parameters (in radians)
         public double maxAngVel = Math.PI; // shared with path
@@ -592,7 +592,7 @@ public final class MecanumDrive {
             ) && robotVelRobot.linearVel.norm() < 0.5
                     // or the trajectory has been running for 1 second more then it's suppposed to (this 1 second is weird)
                     || (trajectoryRunningTime.seconds() >= targetTimeSeconds + 0.5)) && dispTraj.get(dispTraj.length()).position.value().minus(pose.position).norm() < 5)
-                    || (trajectoryRunningTime.seconds() >= targetTimeSeconds + 10)) {
+                    || (trajectoryRunningTime.seconds() >= targetTimeSeconds + 1)) {
 
                 // stop all the motors
                 leftFront.setPower(0);

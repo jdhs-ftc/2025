@@ -24,23 +24,31 @@ class RedFar: LinearOpMode() {
 
         PoseStorage.currentTeam = Team.RED
 
-        val traj = drive.actionBuilder(startPose)
+        // REAL AS OF 2/4
+        val traj = drive.actionBuilderPath(startPose)
             .afterTime(0.1, robot.runIntake()) // just run the intake continuously
             .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(180.0))
             .stopAndAdd (robot.autoFire())
             .setTangent(toRadians(90.0))
-            .splineToSplineHeading(Pose2d(-10.0, 45.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(-8.0, 30.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(-8.0, 47.0, toRadians(90.0)), toRadians(90.0))
+            .endTrajectory()
+            .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(270.0))
             // fire
             .stopAndAdd(robot.autoFire())
             .setTangent(toRadians(45.0))
             // start intake
-            .splineToSplineHeading(Pose2d(14.0, 45.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(16.0, 30.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(16.0, 47.0, toRadians(90.0)), toRadians(90.0))
+            .endTrajectory()
+            .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(240.0))
             .stopAndAdd(robot.autoFire())
             .setTangent(toRadians(30.0))
             // start intake
+            .splineToSplineHeading(Pose2d(36.0, 30.0, toRadians(90.0)), toRadians(90.0))
             .splineToSplineHeading(Pose2d(36.0, 45.0, toRadians(90.0)), toRadians(90.0))
             .splineToSplineHeading(shootPose, toRadians(210.0))
             .stopAndAdd (robot.autoFire())

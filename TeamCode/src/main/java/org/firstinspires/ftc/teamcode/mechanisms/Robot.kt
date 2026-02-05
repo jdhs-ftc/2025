@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
 import com.acmerobotics.roadrunner.Vector2d
+import com.jakewharton.threetenabp.AndroidThreeTen.init
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -22,6 +23,7 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
     val telemetry = LogTelemetry("Robot/")
     val shooter = Shooter(hardwareMap, drive.localizer)
     val transfer: DcMotor = hardwareMap.dcMotor["transfer"]
+    val transferArm: Servo = hardwareMap.servo["transferArm"]
 
     val intake: DcMotor = hardwareMap.dcMotor["intake"]
 
@@ -60,6 +62,7 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
     var transferSpeed = 0.0
         set(value) {
             transfer.power = value
+            transferArm.position = value
             field = value
         }
 
@@ -75,9 +78,9 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
         InstantAction { transferSpeed = transferShoot }
     )
 
-    val intakeRun = -1.0
+    val intakeRun = 1.0
     val intakeStop = 0.0
-    val intakeReverse = 1.0
+    val intakeReverse = -1.0
 
     var intakePower = 0.0
         set(value) {
@@ -116,13 +119,22 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
         true
     }
 
+    fun fireOnce() = SequentialAction(
+        shooter.spinUp(),
+        SleepAction(0.25),
+        transferFire(),
+        RaceParallelAction(SleepAction(0.25), shooter.waitTillFire()),
+        InstantAction { transferSpeed = transferStop }
+    )
+
     fun autoFire() = RaceParallelAction(
         autoAim(),
                 SequentialAction(
                     shooter.spinUp(),
-                    transferFire(),
-                    SleepAction(0.5),
+                    SleepAction(0.25),
+                    fireOnce(),
+                    fireOnce(),
+                    fireOnce(),
                     shooter.spinDown(),
-                    InstantAction { transferSpeed = transferStop}
                 ))
 }

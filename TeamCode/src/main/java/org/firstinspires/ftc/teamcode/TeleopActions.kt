@@ -168,17 +168,17 @@ class TeleopActions : ActionOpMode() {
             val padOuttake = gamepad1.triangle
             val padStartTransfer = gamepad1.circle && !previousGamepad1.circle
             val padStopTransfer = !gamepad1.circle && previousGamepad1.circle
-            val padToggleAim = false//gamepad1.left_bumper && !previousGamepad1.left_bumper
+            val padToggleAim = gamepad1.left_bumper && !previousGamepad1.left_bumper
             val padToggleFire = gamepad1.right_bumper && !previousGamepad1.right_bumper
-            val padShooterReverse = gamepad1.left_bumper && !previousGamepad1.left_bumper
-            val padShooterReverseStop = previousGamepad1.right_bumper && !previousGamepad1.right_bumper
+            val padShooterReverse = false//gamepad1.left_bumper && !previousGamepad1.left_bumper
+            val padShooterReverseStop = false//previousGamepad1.left_bumper && !previousGamepad1.left_bumper
 
             if (padShooterReverse) {
                 robot.shooter.targetRpmGen = { -1000.0}
             }
             if (padShooterReverseStop) robot.shooter.targetRpmGen = { 0.0 }
 
-            if (padOuttake) robot.intake.power = 1.0
+            if (padOuttake) robot.intake.power = robot.intakeReverse
             // Misc/Obscure
             // Prepare to fire
             if (padToggleAim) {
@@ -360,10 +360,10 @@ class TeleopActions : ActionOpMode() {
 
             val padSpinUp = false//gamepad1.right_bumper && !previousGamepad1.right_bumper
             val padSpinDown = false //gamepad1.left_bumper && !previousGamepad1.left_bumper
-            val padLowerRpm = false //gamepad1.dpad_left && !previousGamepad1.dpad_left
-            val padHigherRpm = false //gamepad1.dpad_right && !previousGamepad1.dpad_right
-            val padMuchLowerRpm = gamepad1.dpad_down && !previousGamepad1.dpad_down
-            val padMuchHigherRpm = gamepad1.dpad_up && !previousGamepad1.dpad_up
+            val padMuchLowerRpm = false //gamepad1.dpad_left && !previousGamepad1.dpad_left
+            val padMuchHigherRpm = false //gamepad1.dpad_right && !previousGamepad1.dpad_right
+            val padLowerRpm = gamepad1.dpad_down && !previousGamepad1.dpad_down
+            val padHigherRpm = gamepad1.dpad_up && !previousGamepad1.dpad_up
 
             if (padSpinUp) run(robot.shooter.spinUp())
             if (padSpinDown) run(robot.shooter.spinDown())

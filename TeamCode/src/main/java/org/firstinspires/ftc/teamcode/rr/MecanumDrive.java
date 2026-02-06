@@ -253,6 +253,8 @@ public final class MecanumDrive {
         localizer = new AprilTagLocalizer(hardwareMap,new PinpointLocalizer(hardwareMap, PARAMS.inPerTick, pose));
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
+
+        preciseEnd = false;
     }
 
     public void setDrivePowers(PoseVelocity2d powers) {
@@ -500,6 +502,8 @@ public final class MecanumDrive {
         );
     }
 
+    public static boolean preciseEnd = false;
+
     // Alternate trajectory follower for roadrunner using displacement trajectories (distance instead of time)
     // to use, put at the bottom of RR 1.0's MecanumDrive file, and change actionBuilder to use it instead of FollowTrajectoryAction
     // Created by j5155 from team 12087 based on https://rr.brott.dev/docs/v1-0/guides/path-following/
@@ -517,6 +521,7 @@ public final class MecanumDrive {
         public final ElapsedTime trajectoryRunningTime = new ElapsedTime();
         public double targetTimeSeconds;
         boolean initialized = false;
+        Pose2d lastPose = null;
 
         public FollowTrajectoryAsPathAction(TimeTrajectory t) {
             dispTraj = new DisplacementTrajectory(t.path, t.profile.dispProfile);
@@ -549,6 +554,10 @@ public final class MecanumDrive {
                 xPoints[i] = p.position.x;
                 yPoints[i] = p.position.y;
             }
+
+            lastPose = dispTraj.get(dispTraj.length()).value();
+
+            preciseEnd = false;
 
 
         }
@@ -585,14 +594,25 @@ public final class MecanumDrive {
             FlightRecorder.write("FollowTrajectoryAsPathAction/trajectoryRunningTimeSeconds", trajectoryRunningTime.seconds());
             FlightRecorder.write("FollowTrajectoryAsPathAction/targetTimeSeconds + 1", targetTimeSeconds + 1);
 
+            if (preciseEnd && (lastPose.minus(pose).angle < Math.toRadians(1) && lastPose.minus(pose).line.norm() < 1.5) || (trajectoryRunningTime.seconds() >= targetTimeSeconds + 2)) {
+                // stop all the motors
+                leftFront.setPower(0);
+                leftBack.setPower(0);
+                rightBack.setPower(0);
+                rightFront.setPower(0);
+
+                // end the action
+                return false;
+            }
+
             // if robot within 1 in of end pose
-            if ((((dispTraj.get(dispTraj.length()).position.value().minus(pose.position).norm() < 0.25
+            if (!preciseEnd && ((((dispTraj.get(dispTraj.length()).position.value().minus(pose.position).norm() < 0.25
                     // or the closest position on the path is less then 1 inches away from the end of the path
                     || (disp + 0.1) >= dispTraj.length()
             ) && robotVelRobot.linearVel.norm() < 0.5
                     // or the trajectory has been running for 1 second more then it's suppposed to (this 1 second is weird)
                     || (trajectoryRunningTime.seconds() >= targetTimeSeconds + 0.5)) && dispTraj.get(dispTraj.length()).position.value().minus(pose.position).norm() < 5)
-                    || (trajectoryRunningTime.seconds() >= targetTimeSeconds + 1)) {
+                    || (trajectoryRunningTime.seconds() >= targetTimeSeconds + 10))) {
 
                 // stop all the motors
                 leftFront.setPower(0);

@@ -235,6 +235,8 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         } // end for() loop
 
         foundPoses.sortBy { (it - pose).line.norm() }
+        val newPose = foundPoses.firstOrNull() ?: return vel
+        if (newPose.position.x < 0) return vel
         baseLocalizer.setPose(foundPoses.firstOrNull() ?: return vel)
         //offset = (foundPoses.firstOrNull() ?: return vel).minusExp(basePose) // TODO TEST
 

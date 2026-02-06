@@ -121,7 +121,6 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
 
     fun fireOnce() = SequentialAction(
         shooter.spinUp(),
-        SleepAction(0.25),
         transferFire(),
         RaceParallelAction(SleepAction(0.25), shooter.waitTillFire()),
         InstantAction { transferSpeed = transferStop }
@@ -131,7 +130,6 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
         autoAim(),
                 SequentialAction(
                     shooter.spinUp(),
-                    SleepAction(0.25),
                     fireOnce(),
                     fireOnce(),
                     fireOnce(),

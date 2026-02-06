@@ -18,7 +18,7 @@ class BlueFar: LinearOpMode() {
     override fun runOpMode() {
         val startPose = Pose2d(61.0, -12.0, toRadians(180.0))
         val startPoseMirrored = Pose2d(61.0, 12.0, toRadians(180.0))
-        val shootPose = Pose2d(-14.0, 14.0, toRadians(330.0))
+        val shootPose = Pose2d(-14.0, 14.0, toRadians(320.0))
 
         val drive = MecanumDrive(hardwareMap,startPose)
         val robot = Robot(hardwareMap,drive)
@@ -31,9 +31,8 @@ class BlueFar: LinearOpMode() {
             .splineToSplineHeading(shootPose, toRadians(180.0))
             .stopAndAdd(robot.autoFire())
             .setTangent(toRadians(90.0))
-            .splineToSplineHeading(Pose2d(-7.0, 30.0, toRadians(90.0)), toRadians(90.0))
-            .splineToSplineHeading(Pose2d(-7.0, 47.0, toRadians(90.0)), toRadians(90.0))
-            .endTrajectory()
+            .splineToSplineHeading(Pose2d(-15.0, 30.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(-15.0, 47.0, toRadians(90.0)), toRadians(90.0))
             .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(270.0))
             .afterTime(0.1, InstantAction { MecanumDrive.preciseEnd = true })
@@ -42,9 +41,7 @@ class BlueFar: LinearOpMode() {
             .setTangent(toRadians(45.0))
             // start intake
             .splineToLinearHeading(Pose2d(10.0, 30.0, toRadians(90.0)), toRadians(90.0))
-            .endTrajectory()
             .splineToSplineHeading(Pose2d(10.0, 49.0, toRadians(90.0)), toRadians(90.0))
-            .endTrajectory()
             .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(240.0))
             .afterTime(0.1, InstantAction { MecanumDrive.preciseEnd = true })
@@ -52,9 +49,8 @@ class BlueFar: LinearOpMode() {
             .setTangent(toRadians(30.0))
             // start intake
             .splineToSplineHeading(Pose2d(34.0, 30.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(34.0, 40.0, toRadians(90.0)), toRadians(90.0))
             .endTrajectory()
-            .splineToSplineHeading(Pose2d(34.0, 45.0, toRadians(90.0)), toRadians(90.0))
-            .setTangent(toRadians(-90.0))
             .splineToSplineHeading(shootPose, toRadians(210.0))
             .afterTime(0.1, InstantAction { MecanumDrive.preciseEnd = true })
             .stopAndAdd(robot.autoFire())

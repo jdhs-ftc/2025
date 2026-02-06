@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.helpers.interp
 import org.firstinspires.ftc.teamcode.helpers.registerTunable
 import org.firstinspires.ftc.teamcode.rr.Localizer
+import org.firstinspires.ftc.teamcode.rr.messages.PoseMessage
 import org.opencv.imgproc.Imgproc.threshold
 import java.lang.Math.toRadians
 import kotlin.math.abs
@@ -29,7 +30,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
         var kA = 0.0
         var kStatic = 0.0
         var lastReady = false
-        var readyThresholdRpm = 50.0 // could be 100.0
+        var readyThresholdRpm = 100.0 // could be 100.0
         var notReadyThresholdRpm = 200.0
         /*
         TABLE
@@ -39,7 +40,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
 
         // 1800 at 45 deg? at >6 ft
         var firingRpms = mapOf(Pair(90.0,1949.0),Pair(140.0,1949.0))//5000.0))
-        var blueGoal = Vector2d(-65.0, -85.0)
+        var blueGoal = Vector2d(-70.0, -80.0)
         var redGoal = Vector2d(-65.0, 85.0)
         var shooterX = 0.0
         var shooterY = 0.0
@@ -125,9 +126,9 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
         telemetry.addData("shooter/targetRpm", targetRpm)
         telemetry.addData("shooter/ready", ready)
         telemetry.addData("shooter/distance", distance)
-        telemetry.addData("shooter/targetHeading", targetHeading)
+        telemetry.addData("shooter/targetHeading", targetHeading.toDouble())
         telemetry.addData("shooter/targetGoal", targetGoal)
-        telemetry.addData("shooter/localizerPose", localizer.pose)
+        telemetry.addData("shooter/localizerPose", PoseMessage(localizer.pose))
     }
 
     fun spinUp() = SequentialAction(
@@ -143,10 +144,10 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
     }
 
     fun waitTillReady() = Action {
-        return@Action  !ready
+        return@Action !((shooter1rpm - targetRpm).absoluteValue < readyThresholdRpm && (shooter2rpm - targetRpm).absoluteValue < readyThresholdRpm)
     }
 
     fun waitTillFire() = Action{
-        return@Action ready
+        return@Action (shooter1rpm - targetRpm).absoluteValue < notReadyThresholdRpm && (shooter2rpm - targetRpm).absoluteValue < notReadyThresholdRpm
     }
 }

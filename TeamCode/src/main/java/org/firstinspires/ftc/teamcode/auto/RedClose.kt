@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto
 
+import com.acmerobotics.roadrunner.InstantAction
 import com.acmerobotics.roadrunner.Pose2d
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.ftc.runBlocking
@@ -15,7 +16,7 @@ import java.lang.Math.toRadians
 @Autonomous(preselectTeleOp = "00 Teleop Field Centric")
 class RedClose: LinearOpMode() {
     override fun runOpMode() {
-        AprilTagLocalizer.enabled = false
+        AprilTagLocalizer.enabled = true
         val startPose = Pose2d(-55.0, 55.0, toRadians(320.0))
         val shootPose = Pose2d(-14.0, 14.0, toRadians(320.0))
 
@@ -29,22 +30,34 @@ class RedClose: LinearOpMode() {
             .setTangent(toRadians(315.0))
             .setReversed(true)
             .splineToSplineHeading(shootPose, toRadians(315.0))
-            .stopAndAdd (robot.autoFire())
+            .stopAndAdd(robot.autoFire())
             .setTangent(toRadians(90.0))
-            .splineToSplineHeading(Pose2d(-10.0, 45.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(-8.0, 30.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(-8.0, 47.0, toRadians(90.0)), toRadians(90.0))
+            .endTrajectory()
+            .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(270.0))
+            .afterTime(0.1, InstantAction { MecanumDrive.preciseEnd = true })
             // fire
             .stopAndAdd(robot.autoFire())
             .setTangent(toRadians(45.0))
             // start intake
-            .splineToSplineHeading(Pose2d(14.0, 45.0, toRadians(90.0)), toRadians(90.0))
+            .splineToLinearHeading(Pose2d(15.0, 30.0, toRadians(90.0)), toRadians(90.0))
+            .endTrajectory()
+            .splineToSplineHeading(Pose2d(15.0, 49.0, toRadians(90.0)), toRadians(90.0))
+            .endTrajectory()
+            .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(240.0))
+            .afterTime(0.1, InstantAction { MecanumDrive.preciseEnd = true })
             .stopAndAdd(robot.autoFire())
             .setTangent(toRadians(30.0))
             // start intake
-            .splineToSplineHeading(Pose2d(36.0, 45.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(34.0, 30.0, toRadians(90.0)), toRadians(90.0))
+            .endTrajectory()
+            .splineToSplineHeading(Pose2d(34.0, 50.0, toRadians(90.0)), toRadians(90.0))
             .splineToSplineHeading(shootPose, toRadians(210.0))
-            .stopAndAdd (robot.autoFire())
+            .afterTime(0.1, InstantAction { MecanumDrive.preciseEnd = true })
+            .stopAndAdd(robot.autoFire())
 
             .build()
 

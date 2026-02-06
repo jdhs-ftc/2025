@@ -202,7 +202,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         for (detection in currentDetections) {
             if (detection.metadata != null) {
                 // Only use tags that don't have Obelisk in them
-                if (!detection.metadata.name.contains("Obelisk")) {
+                if (!detection.metadata.name.contains("Obelisk") && detection.decisionMargin < 50) {
 
                     foundPoses.add(Pose2d(detection.robotPose.position.x, detection.robotPose.position.y, detection.robotPose.orientation.getYaw(AngleUnit.RADIANS)))
 

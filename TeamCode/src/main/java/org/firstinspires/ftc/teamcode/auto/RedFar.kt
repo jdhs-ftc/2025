@@ -17,8 +17,6 @@ import java.lang.Math.toRadians
 @Autonomous(preselectTeleOp = "00 Teleop Field Centric")
 class RedFar: LinearOpMode() {
     override fun runOpMode() {
-        //AprilTagLocalizer.enabled = false
-        AprilTagLocalizer.enabled = true
         val startPose = Pose2d(61.0, 12.0, toRadians(180.0))
         val shootPose = Pose2d(-14.0, 14.0, toRadians(320.0))
 

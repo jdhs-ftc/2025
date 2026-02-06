@@ -16,8 +16,8 @@ import java.lang.Math.toRadians
 class RedClose: LinearOpMode() {
     override fun runOpMode() {
         AprilTagLocalizer.enabled = false
-        val startPose = Pose2d(-55.0, 55.0, toRadians(135.0))
-        val shootPose = Pose2d(-14.0, 14.0, toRadians(330.0))
+        val startPose = Pose2d(-55.0, 55.0, toRadians(320.0))
+        val shootPose = Pose2d(-14.0, 14.0, toRadians(320.0))
 
         val drive = MecanumDrive(hardwareMap,startPose)
         val robot = Robot(hardwareMap,drive)

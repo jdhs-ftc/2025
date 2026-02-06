@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.rr.messages.TwistMessage
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
+import java.lang.Math.toDegrees
 
 
 class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localizer): Localizer {
@@ -187,12 +188,12 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         log("AprilTagLocalizer/correctedThisLoop", false)
         if (!enabled) return vel
         //return vel
-        /*
-        if (vel.linearVel.norm().toDouble() > 1.0 || toDegrees(vel.angVel.toDouble()) > 1.0) {
+
+        if (vel.linearVel.norm().toDouble() > 5.0 || toDegrees(vel.angVel.toDouble()) > 5.0) {
             return vel
         }
 
-         */
+
 
         val currentDetections = aprilTag.freshDetections ?: return vel
 
@@ -227,6 +228,11 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
                         detection.robotPose.orientation.roll
                     )
 
+                    log(
+                        "AprilTagLocalizer/detection${detection.id}/decisionmargin",
+                        detection.decisionMargin.toDouble()
+                    )
+
 
 
 
@@ -236,7 +242,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
 
         foundPoses.sortBy { (it - pose).line.norm() }
         val newPose = foundPoses.firstOrNull() ?: return vel
-        if (newPose.position.x < 0) return vel
+        if (newPose.position.x > 0) return vel
         baseLocalizer.setPose(foundPoses.firstOrNull() ?: return vel)
         //offset = (foundPoses.firstOrNull() ?: return vel).minusExp(basePose) // TODO TEST
 

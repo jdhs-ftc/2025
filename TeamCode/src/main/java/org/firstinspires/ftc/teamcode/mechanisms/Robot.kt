@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.mechanisms
 import com.acmerobotics.roadrunner.Action
 import com.acmerobotics.roadrunner.InstantAction
 import com.acmerobotics.roadrunner.PoseVelocity2d
+import com.acmerobotics.roadrunner.RaceAction
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
 import com.acmerobotics.roadrunner.Vector2d
@@ -129,10 +130,12 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
     fun autoFire() = RaceParallelAction(
         autoAim(),
                 SequentialAction(
-                    shooter.spinUp(),
-                    fireOnce(),
-                    fireOnce(),
-                    fireOnce(),
-                    shooter.spinDown(),
-                ))
+                    RaceAction(
+                        shooter.spinUp(), SleepAction(1.0)),
+                        fireOnce(),
+                        fireOnce(),
+                        fireOnce(),
+                        shooter.spinDown(),
+                    )
+                )
 }

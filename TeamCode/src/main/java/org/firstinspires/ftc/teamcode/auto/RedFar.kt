@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.auto
 import com.acmerobotics.roadrunner.InstantAction
 import com.acmerobotics.roadrunner.Pose2d
 import com.acmerobotics.roadrunner.SequentialAction
+import com.acmerobotics.roadrunner.Vector2d
 import com.acmerobotics.roadrunner.ftc.runBlocking
 import com.pedropathing.ftc.drivetrains.Mecanum
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
@@ -32,8 +33,8 @@ class RedFar: LinearOpMode() {
             .splineToSplineHeading(shootPose, toRadians(180.0))
             .stopAndAdd (robot.autoFire())
             .setTangent(toRadians(90.0))
-            .splineToSplineHeading(Pose2d(-8.0, 30.0, toRadians(90.0)), toRadians(90.0))
-            .splineToSplineHeading(Pose2d(-8.0, 47.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(-15.0, 30.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(-15.0, 49.0, toRadians(90.0)), toRadians(90.0))
             .endTrajectory()
             .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(270.0))
@@ -42,9 +43,9 @@ class RedFar: LinearOpMode() {
             .stopAndAdd(robot.autoFire())
             .setTangent(toRadians(45.0))
             // start intake
-            .splineToLinearHeading(Pose2d(15.0, 30.0, toRadians(90.0)), toRadians(90.0))
+            .splineToLinearHeading(Pose2d(9.0, 30.0, toRadians(90.0)), toRadians(90.0))
             .endTrajectory()
-            .splineToSplineHeading(Pose2d(15.0, 49.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(9.0, 49.0, toRadians(90.0)), toRadians(90.0))
             .endTrajectory()
             .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(240.0))
@@ -54,10 +55,11 @@ class RedFar: LinearOpMode() {
             // start intake
             .splineToSplineHeading(Pose2d(34.0, 30.0, toRadians(90.0)), toRadians(90.0))
             .endTrajectory()
-            .splineToSplineHeading(Pose2d(34.0, 50.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(34.0, 40.0, toRadians(90.0)), toRadians(90.0))
             .splineToSplineHeading(shootPose, toRadians(210.0))
             .afterTime(0.1, InstantAction { MecanumDrive.preciseEnd = true })
             .stopAndAdd (robot.autoFire())
+            .strafeTo(Vector2d(-35.0, 14.0))
 
             .build()
 

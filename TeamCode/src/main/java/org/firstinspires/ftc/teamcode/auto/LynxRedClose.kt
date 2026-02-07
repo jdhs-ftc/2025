@@ -15,11 +15,11 @@ import org.firstinspires.ftc.teamcode.mechanisms.Robot
 import org.firstinspires.ftc.teamcode.rr.MecanumDrive
 import java.lang.Math.toRadians
 @Autonomous(preselectTeleOp = "00 Teleop Field Centric")
-class RedClose: LinearOpMode() {
+class LynxRedClose: LinearOpMode() {
     override fun runOpMode() {
         AprilTagLocalizer.enabled = true
         val startPose = Pose2d(-55.0, 55.0, toRadians(320.0))
-        val shootPose = Pose2d(-14.0, 14.0, toRadians(320.0))
+        val shootPose = Pose2d(-30.0, 16.0, toRadians(300.0))
 
         val drive = MecanumDrive(hardwareMap,startPose)
         val robot = Robot(hardwareMap,drive)
@@ -49,6 +49,7 @@ class RedClose: LinearOpMode() {
             .splineToSplineHeading(shootPose, toRadians(240.0))
             .afterTime(0.1, InstantAction { MecanumDrive.preciseEnd = true })
             .stopAndAdd(robot.autoFire())
+            /*
             .setTangent(toRadians(30.0))
             // start intake
             .splineToSplineHeading(Pose2d(32.0, 30.0, toRadians(90.0)), toRadians(90.0))
@@ -59,6 +60,8 @@ class RedClose: LinearOpMode() {
             .stopAndAdd(robot.autoFire())
             .setTangent(toRadians(0.0))
             .strafeTo(Vector2d(-35.0, 14.0))
+
+             */
 
             .build()
 

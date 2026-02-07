@@ -176,7 +176,7 @@ class TeleopActions : ActionOpMode() {
             if (padShooterReverseStop) robot.shooter.targetRpmGen = { 0.0 }
 
             if (padOuttakeStart) robot.intake.power = robot.intakeReverse
-            if (padOuttakeEnd) robot.intake.power = 0.0
+            if (padOuttakeEnd) robot.intake.power = robot.intakeRun
             // Misc/Obscure
             // Prepare to fire
             if (padAimStart) {
@@ -432,6 +432,8 @@ class TeleopActions : ActionOpMode() {
             telemetry.addData("intakeLaserState", robot.laserCombo.intakeState)
             telemetry.addData("shooterLaserState", robot.laserCombo.shooterState)
             telemetry.addData("balls", robot.laserCombo.balls)
+
+            telemetry.addData("headingInput",headingInput)
 
             telemetry.update()
         }

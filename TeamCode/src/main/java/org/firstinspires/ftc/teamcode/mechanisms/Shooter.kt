@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.mechanisms
 
 import com.acmerobotics.roadrunner.Action
 import com.acmerobotics.roadrunner.InstantAction
+import com.acmerobotics.roadrunner.RaceAction
 import com.acmerobotics.roadrunner.SequentialAction
+import com.acmerobotics.roadrunner.SleepAction
 import com.acmerobotics.roadrunner.Vector2d
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
@@ -37,8 +39,8 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
 
         // 1800 at 45 deg? at >6 ft
         var firingRpms = mapOf(Pair(90.0, 1949.0), Pair(140.0, 1949.0))//5000.0))
-        var blueGoal = Vector2d(-75.0, -75.0)// Vector2d(-70.0, -80.0)
-        var redGoal = Vector2d(-75.0, 75.0)//Vector2d(-65.0, 85.0)
+        var blueGoal =  Vector2d(-70.0, -80.0)
+        var redGoal = Vector2d(-70.0, 85.0)
         var shooterX = 0.0
         var shooterY = 0.0
         var shooterZ = 0.0
@@ -133,7 +135,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
         InstantAction {
             targetRpmGen = ::autoFiringRpm // only set firing speed once
         },
-        waitTillReady()
+        RaceAction(waitTillReady(), SleepAction(1.0))
     )
 
     fun spinDown() = Action {

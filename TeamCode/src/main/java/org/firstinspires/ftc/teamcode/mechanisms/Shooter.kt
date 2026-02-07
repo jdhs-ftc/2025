@@ -7,7 +7,6 @@ import com.acmerobotics.roadrunner.Vector2d
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.teamcode.helpers.FloodgateMotor
 import org.firstinspires.ftc.teamcode.helpers.LogTelemetry
 import org.firstinspires.ftc.teamcode.helpers.PoseStorage
 import org.firstinspires.ftc.teamcode.helpers.control.NullLocalizer
@@ -16,12 +15,10 @@ import org.firstinspires.ftc.teamcode.helpers.interp
 import org.firstinspires.ftc.teamcode.helpers.registerTunable
 import org.firstinspires.ftc.teamcode.rr.Localizer
 import org.firstinspires.ftc.teamcode.rr.messages.PoseMessage
-import org.opencv.imgproc.Imgproc.threshold
 import java.lang.Math.toRadians
-import kotlin.math.abs
 import kotlin.math.absoluteValue
 
-class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer()): Mechanism {
+class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer()) : Mechanism {
     companion object {
         var p = 0.0
         var i = 0.0
@@ -39,29 +36,29 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
          */
 
         // 1800 at 45 deg? at >6 ft
-        var firingRpms = mapOf(Pair(90.0,1949.0),Pair(140.0,1949.0))//5000.0))
-        var blueGoal = Vector2d(-75.0,-75.0)// Vector2d(-70.0, -80.0)
-        var redGoal = Vector2d(-75.0,75.0)//Vector2d(-65.0, 85.0)
+        var firingRpms = mapOf(Pair(90.0, 1949.0), Pair(140.0, 1949.0))//5000.0))
+        var blueGoal = Vector2d(-75.0, -75.0)// Vector2d(-70.0, -80.0)
+        var redGoal = Vector2d(-75.0, 75.0)//Vector2d(-65.0, 85.0)
         var shooterX = 0.0
         var shooterY = 0.0
         var shooterZ = 0.0
         var shooterHeading = toRadians(180.0)
 
         init {
-            registerTunable(::p,"Shooter")
-            registerTunable(::i,"Shooter")
-            registerTunable(::d,"Shooter")
-            registerTunable(::kV,"Shooter")
-            registerTunable(::kA,"Shooter")
-            registerTunable(::kStatic,"Shooter")
-            registerTunable(::readyThresholdRpm,"Shooter")
+            registerTunable(::p, "Shooter")
+            registerTunable(::i, "Shooter")
+            registerTunable(::d, "Shooter")
+            registerTunable(::kV, "Shooter")
+            registerTunable(::kA, "Shooter")
+            registerTunable(::kStatic, "Shooter")
+            registerTunable(::readyThresholdRpm, "Shooter")
             //registerTunable(::firingRpms,"Shooter")
-            registerTunable(::blueGoal,"Shooter")
-            registerTunable(::redGoal,"Shooter")
-            registerTunable(::shooterX,"Shooter")
-            registerTunable(::shooterY,"Shooter")
-            registerTunable(::shooterZ,"Shooter")
-            registerTunable(::shooterHeading,"Shooter")
+            registerTunable(::blueGoal, "Shooter")
+            registerTunable(::redGoal, "Shooter")
+            registerTunable(::shooterX, "Shooter")
+            registerTunable(::shooterY, "Shooter")
+            registerTunable(::shooterZ, "Shooter")
+            registerTunable(::shooterHeading, "Shooter")
         }
     }
 
@@ -72,7 +69,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
     val distance get() = (targetGoal - localizer.pose.position).norm()
 
 
-    val pid get() = PIDFController.PIDCoefficients(p,i,d)
+    val pid get() = PIDFController.PIDCoefficients(p, i, d)
     var firingRpmOffset = 0.0
 
     // TODO interplut
@@ -87,9 +84,9 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
     }
 
     val shooter1PID =
-        PIDFController(pid,kV,kA,kStatic)
+        PIDFController(pid, kV, kA, kStatic)
     val shooter2PID =
-        PIDFController(pid,kV,kA,kStatic)
+        PIDFController(pid, kV, kA, kStatic)
 
     val shooter1rpm get() = shooter1.velocity * 2
     val shooter2rpm get() = shooter2.velocity * 2
@@ -99,20 +96,21 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
     val targetRpm
         get() = targetRpmGen()
 
-    val ready: Boolean get() {
-        var threshold = readyThresholdRpm
-        if (lastReady) {
-            threshold = notReadyThresholdRpm
-        }
+    val ready: Boolean
+        get() {
+            var threshold = readyThresholdRpm
+            if (lastReady) {
+                threshold = notReadyThresholdRpm
+            }
 
-        if ( (shooter1rpm-targetRpm).absoluteValue < threshold && (shooter2rpm-targetRpm).absoluteValue < threshold) {
-            lastReady = true
-            return true
-        } else {
-            lastReady = false
-            return  false
+            if ((shooter1rpm - targetRpm).absoluteValue < threshold && (shooter2rpm - targetRpm).absoluteValue < threshold) {
+                lastReady = true
+                return true
+            } else {
+                lastReady = false
+                return false
+            }
         }
-    }
 
     override fun update(telemetry: LogTelemetry) {
         shooter1PID.targetVelocity = targetRpm
@@ -139,7 +137,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
     )
 
     fun spinDown() = Action {
-        targetRpmGen = {0.0} // set firing speed in loop for safety/paranoia
+        targetRpmGen = { 0.0 } // set firing speed in loop for safety/paranoia
         return@Action !ready
     }
 
@@ -147,7 +145,7 @@ class Shooter(hardwareMap: HardwareMap, val localizer: Localizer = NullLocalizer
         return@Action !((shooter1rpm - targetRpm).absoluteValue < readyThresholdRpm && (shooter2rpm - targetRpm).absoluteValue < readyThresholdRpm)
     }
 
-    fun waitTillFire() = Action{
+    fun waitTillFire() = Action {
         return@Action (shooter1rpm - targetRpm).absoluteValue < notReadyThresholdRpm && (shooter2rpm - targetRpm).absoluteValue < notReadyThresholdRpm
     }
 }

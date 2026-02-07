@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode
 
-import android.graphics.Color
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
-import com.acmerobotics.roadrunner.InstantAction
 import com.acmerobotics.roadrunner.Pose2d
 import com.acmerobotics.roadrunner.PoseVelocity2d
 import com.acmerobotics.roadrunner.Rotation2d
-import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.Vector2d
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.lynx.LynxModule.BulkCachingMode
@@ -30,7 +27,6 @@ import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.mechanisms.Robot
 import org.firstinspires.ftc.teamcode.rr.Drawing
 import org.firstinspires.ftc.teamcode.rr.MecanumDrive
-import org.firstinspires.ftc.teamcode.vision.ArtifactLocator
 import java.lang.Math.toRadians
 import java.util.LinkedList
 
@@ -84,12 +80,10 @@ class TeleopActions : ActionOpMode() {
     val timeSinceDriverTurned = ElapsedTime()
 
 
-        //lateinit var artifactLocator: ArtifactLocator
+    //lateinit var artifactLocator: ArtifactLocator
 
     enum class AimMode {
-        NONE,
-        GOAL,
-        ARTIFACT;
+        NONE, GOAL, ARTIFACT;
 
         fun next() = entries[(this.ordinal + 1) % entries.size]
     }
@@ -187,18 +181,18 @@ class TeleopActions : ActionOpMode() {
             // Prepare to fire
             if (padAimStart) {
                 aimMode = AimMode.GOAL
-            gamepad1.rumbleBlips(2)
-            robot.light.color = PoseStorage.currentTeam.color
-        }
-        if (padAimEnd) {
-                    aimMode = AimMode.NONE
-                    gamepad1.rumbleBlips(1)
-                    robot.light.color = org.firstinspires.ftc.teamcode.helpers.Color.GREEN
-                }
+                gamepad1.rumbleBlips(2)
+                robot.light.color = PoseStorage.currentTeam.color
+            }
+            if (padAimEnd) {
+                aimMode = AimMode.NONE
+                gamepad1.rumbleBlips(1)
+                robot.light.color = org.firstinspires.ftc.teamcode.helpers.Color.GREEN
+            }
 
 
             if (padToggleFire) {
-               // firing = !firing // ??? confounding warning
+                // firing = !firing // ??? confounding warning
                 if (!firing) run(robot.shooter.spinUp()) else run(robot.shooter.spinDown())
                 firing = !firing
 
@@ -206,12 +200,10 @@ class TeleopActions : ActionOpMode() {
 
             if (padStartTransfer) {
                 run(robot.transferFire())
-            } else if(padStopTransfer) {
+            } else if (padStopTransfer) {
                 robot.transferSpeed = robot.transferStop
             }
             if (padToggleIntake) robot.toggleIntake()
-
-
 
 
             // Extra Settings
@@ -234,15 +226,11 @@ class TeleopActions : ActionOpMode() {
             if (padResetPose) {
                 if (PoseStorage.currentTeam != BLUE) { // Team is declared and saved there for auto
                     drive.localizer.pose = Pose2d(
-                        0.0,
-                        0.0,
-                        Math.toRadians(90.0)
+                        0.0, 0.0, Math.toRadians(90.0)
                     )
                 } else {
                     drive.localizer.pose = Pose2d(
-                        0.0,
-                        0.0,
-                        Math.toRadians(-90.0)
+                        0.0, 0.0, Math.toRadians(-90.0)
                     )
                 }
 
@@ -280,8 +268,7 @@ class TeleopActions : ActionOpMode() {
             // Create a vector from the gamepad x/y inputs
             // Then, rotate that vector by the inverse of that heading
             var input = Vector2d(
-                -gamepad1.left_stick_y * speed,
-                -gamepad1.left_stick_x * speed
+                -gamepad1.left_stick_y * speed, -gamepad1.left_stick_x * speed
             )
 
             var rotationAmount = drive.localizer.pose.heading.inverse() // inverse it
@@ -337,9 +324,7 @@ class TeleopActions : ActionOpMode() {
                         targetHeading = drive.localizer.pose.heading
                     } else {
                         headingInput =
-                            ((joystickHeadingController.update(drive.localizer.pose.heading.log())
-                                    * MecanumDrive.PARAMS.kV
-                                    * MecanumDrive.PARAMS.trackWidthTicks))
+                            ((joystickHeadingController.update(drive.localizer.pose.heading.log()) * MecanumDrive.PARAMS.kV * MecanumDrive.PARAMS.trackWidthTicks))
                     }
 
 
@@ -351,10 +336,8 @@ class TeleopActions : ActionOpMode() {
             drive.setDrivePowers(
                 PoseVelocity2d(
                     Vector2d(
-                        input.x,
-                        input.y
-                    ),
-                    headingInput
+                        input.x, input.y
+                    ), headingInput
                 )
             )
 
@@ -386,8 +369,7 @@ class TeleopActions : ActionOpMode() {
 
             // TELEMETRY
             Drawing.drawRobot(
-                packet.fieldOverlay(),
-                drive.localizer.pose
+                packet.fieldOverlay(), drive.localizer.pose
             )
 
             updateAsync(packet)
@@ -409,8 +391,7 @@ class TeleopActions : ActionOpMode() {
                 telemetry.addData("heading", drive.localizer.pose.heading.log())
                 telemetry.addData("targetHeading rad", targetHeading.toDouble())
                 telemetry.addData(
-                    "headingDeg",
-                    Math.toDegrees(drive.localizer.pose.heading.log())
+                    "headingDeg", Math.toDegrees(drive.localizer.pose.heading.log())
                 )
                 telemetry.addData("targetHeading deg", Math.toDegrees(targetHeading.toDouble()))
                 telemetry.addData(
@@ -425,8 +406,7 @@ class TeleopActions : ActionOpMode() {
                 telemetry.addData("loopTimeMs", loopTimeMs)
                 telemetry.addData("loopTimeHz", 1000.0 / loopTimeMs)
                 telemetry.addData(
-                    "LoopAverage ",
-                    loopTimeAvg.sum() / loopTimeAvg.size
+                    "LoopAverage ", loopTimeAvg.sum() / loopTimeAvg.size
                 )
             }
             if (showMotorTelemetry) {
@@ -446,11 +426,12 @@ class TeleopActions : ActionOpMode() {
             telemetry.addData("firingRpm rpm", robot.shooter.autoFiringRpm)
             telemetry.addData("currentRpm1 rpm", robot.shooter.shooter1rpm)
             telemetry.addData("currentRpm2 rpm", robot.shooter.shooter2rpm)
-            telemetry.addData("headingError rad",
-                (drive.localizer.pose.heading - robot.shooter.targetHeading))
-            telemetry.addData("intakeLaserState",robot.laserCombo.intakeState)
-            telemetry.addData("shooterLaserState",robot.laserCombo.shooterState)
-            telemetry.addData("balls",robot.laserCombo.balls)
+            telemetry.addData(
+                "headingError rad", (drive.localizer.pose.heading - robot.shooter.targetHeading)
+            )
+            telemetry.addData("intakeLaserState", robot.laserCombo.intakeState)
+            telemetry.addData("shooterLaserState", robot.laserCombo.shooterState)
+            telemetry.addData("balls", robot.laserCombo.balls)
 
             telemetry.update()
         }

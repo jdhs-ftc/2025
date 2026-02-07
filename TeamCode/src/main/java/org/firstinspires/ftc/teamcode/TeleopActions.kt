@@ -39,7 +39,7 @@ import java.util.LinkedList
 class TeleopActions : ActionOpMode() {
 
     // Declare a PIDF Controller to regulate heading
-    val headingPIDJoystick = PIDFController.PIDCoefficients(1.0, 0.0, 0.0)
+    val headingPIDJoystick = PIDFController.PIDCoefficients(0.5, 0.0, 0.0)
     val joystickHeadingController = PIDFController(headingPIDJoystick)
 
     val allHubs: List<LynxModule> by lazy { hardwareMap.getAll<LynxModule>(LynxModule::class.java) }
@@ -165,34 +165,37 @@ class TeleopActions : ActionOpMode() {
 
 
             val padToggleIntake = gamepad1.cross && !previousGamepad1.cross
-            val padOuttake = gamepad1.triangle
+            val padOuttakeStart = gamepad1.triangle && !previousGamepad1.triangle
+            val padOuttakeEnd = !gamepad1.triangle && previousGamepad1.triangle
             val padStartTransfer = gamepad1.circle && !previousGamepad1.circle
             val padStopTransfer = !gamepad1.circle && previousGamepad1.circle
-            val padToggleAim = gamepad1.left_bumper && !previousGamepad1.left_bumper
+            val padAimStart = gamepad1.left_bumper && !previousGamepad1.left_bumper
+            val padAimEnd = !gamepad1.left_bumper && previousGamepad1.left_bumper
             val padToggleFire = gamepad1.right_bumper && !previousGamepad1.right_bumper
             val padShooterReverse = false//gamepad1.left_bumper && !previousGamepad1.left_bumper
-            val padShooterReverseStop = false//previousGamepad1.left_bumper && !previousGamepad1.left_bumper
+            val padShooterReverseStop =
+                false//previousGamepad1.left_bumper && !previousGamepad1.left_bumper
 
             if (padShooterReverse) {
-                robot.shooter.targetRpmGen = { -1000.0}
+                robot.shooter.targetRpmGen = { -1000.0 }
             }
             if (padShooterReverseStop) robot.shooter.targetRpmGen = { 0.0 }
 
-            if (padOuttake) robot.intake.power = robot.intakeReverse
+            if (padOuttakeStart) robot.intake.power = robot.intakeReverse
+            if (padOuttakeEnd) robot.intake.power = 0.0
             // Misc/Obscure
             // Prepare to fire
-            if (padToggleAim) {
-                if (aimMode == AimMode.NONE) {
-                    aimMode = AimMode.GOAL
-                    gamepad1.rumbleBlips(2)
-                    robot.light.color = PoseStorage.currentTeam.color
-
-                } else {
+            if (padAimStart) {
+                aimMode = AimMode.GOAL
+            gamepad1.rumbleBlips(2)
+            robot.light.color = PoseStorage.currentTeam.color
+        }
+        if (padAimEnd) {
                     aimMode = AimMode.NONE
                     gamepad1.rumbleBlips(1)
                     robot.light.color = org.firstinspires.ftc.teamcode.helpers.Color.GREEN
                 }
-            }
+
 
             if (padToggleFire) {
                // firing = !firing // ??? confounding warning

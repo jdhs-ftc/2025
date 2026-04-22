@@ -29,6 +29,7 @@ import org.firstinspires.ftc.teamcode.rr.Drawing
 import org.firstinspires.ftc.teamcode.rr.MecanumDrive
 import java.lang.Math.toRadians
 import java.util.LinkedList
+import kotlin.math.abs
 import kotlin.math.sign
 
 
@@ -36,10 +37,11 @@ import kotlin.math.sign
 class TeleopActions : ActionOpMode() {
 
     // Declare a PIDF Controller to regulate heading
-    val headingPIDJoystick = PIDFController.PIDCoefficients(1.0, 0.0, 0.0)
+    val headingPIDJoystick = PIDFController.PIDCoefficients(1.0, 0.0, 0.1)
     val joystickHeadingController = PIDFController(headingPIDJoystick)
 
-    val headingKs = 0.18
+    val headingKs = 0.08
+    val brakeThreshold = 0.04
 
     val allHubs: List<LynxModule> by lazy { hardwareMap.getAll<LynxModule>(LynxModule::class.java) }
     val controlHub by lazy {
@@ -291,7 +293,7 @@ class TeleopActions : ActionOpMode() {
                 Vector2d(-gamepad1.right_stick_y.toDouble(), -gamepad1.right_stick_x.toDouble())
 
             var headingInput = 0.0
-            if (gamepad1.left_trigger > 0.1 || gamepad1.right_trigger > 0.1) {
+            if (gamepad1.left_trigger > 0.01 || gamepad1.right_trigger > 0.01) {
                 headingInput = (gamepad1.left_trigger - gamepad1.right_trigger) * speed * 1.0
                 targetHeading = drive.localizer.pose.heading
                 timeSinceDriverTurned.reset()
@@ -332,7 +334,10 @@ class TeleopActions : ActionOpMode() {
                             ((joystickHeadingController.update(System.nanoTime(), drive.localizer.pose.heading.log(),
                                 vel.angVel
                             ) * MecanumDrive.PARAMS.kV * MecanumDrive.PARAMS.trackWidthTicks))
-                        headingInput += headingKs * headingInput.sign
+                        telemetry.addData("rawHeadingInput",headingInput)
+                        if (abs(headingInput) > brakeThreshold) {
+                            headingInput += headingKs * headingInput.sign
+                        }
                     }
 
 
@@ -442,6 +447,7 @@ class TeleopActions : ActionOpMode() {
             telemetry.addData("balls", robot.laserCombo.balls)
 
             telemetry.addData("headingInput",headingInput)
+            telemetry.addData("headingError deg", abs(Math.toDegrees(drive.localizer.pose.heading.toDouble()) - Math.toDegrees(targetHeading.toDouble())))
 
             telemetry.update()
         }

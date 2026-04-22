@@ -19,6 +19,8 @@ import org.firstinspires.ftc.teamcode.helpers.RaceParallelAction
 import org.firstinspires.ftc.teamcode.helpers.control.PIDFController
 import org.firstinspires.ftc.teamcode.rr.MecanumDrive
 import kotlin.jvm.java
+import kotlin.math.abs
+import kotlin.math.sign
 
 class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
     val telemetry = LogTelemetry("Robot/")
@@ -101,16 +103,27 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
     fun runIntake() = InstantAction { intakePower = intakeRun }
     fun stopIntake() = InstantAction { intakePower = intakeStop }
 
-    val headingPID = PIDFController.PIDCoefficients(1.0, 0.0, 0.0)
+    val headingPID = PIDFController.PIDCoefficients(1.0, 0.0, 0.1)
     val headingController = PIDFController(headingPID)
+
+    val headingKs = 0.08
+    val brakeThreshold = 0.05
     init {
         headingController.setInputBounds(-Math.PI, Math.PI)
     }
 
     fun autoAim() = Action {
-        drive.updatePoseEstimate()
+        val vel = drive.updatePoseEstimate()
         headingController.targetPosition = shooter.targetHeading.toDouble()
-        val headingInput = headingController.update(drive.localizer.pose.heading.toDouble())
+        var headingInput =
+            ((headingController.update(
+                System.nanoTime(), drive.localizer.pose.heading.log(),
+                vel.angVel
+            ) * MecanumDrive.PARAMS.kV * MecanumDrive.PARAMS.trackWidthTicks))
+        telemetry.addData("rawHeadingInput", headingInput)
+        if (abs(headingInput) > brakeThreshold) {
+            headingInput += headingKs * headingInput.sign
+        }
         drive.setDrivePowers(
             PoseVelocity2d(
                 Vector2d(0.0, 0.0),

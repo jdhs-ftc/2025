@@ -41,7 +41,7 @@ class TeleopActions : ActionOpMode() {
     val joystickHeadingController = PIDFController(headingPIDJoystick)
 
     val headingKs = 0.08
-    val brakeThreshold = 0.04
+    val brakeThreshold = 0.05
 
     val allHubs: List<LynxModule> by lazy { hardwareMap.getAll<LynxModule>(LynxModule::class.java) }
     val controlHub by lazy {
@@ -172,7 +172,7 @@ class TeleopActions : ActionOpMode() {
             val padStopTransfer = !gamepad1.circle && previousGamepad1.circle
             val padAimStart = gamepad1.left_bumper && !previousGamepad1.left_bumper
             val padAimEnd = !gamepad1.left_bumper && previousGamepad1.left_bumper
-            val padToggleFire = gamepad1.right_bumper && !previousGamepad1.right_bumper
+            val padToggleFire = false//gamepad1.right_bumper && !previousGamepad1.right_bumper
             val padShooterReverse = false//gamepad1.left_bumper && !previousGamepad1.left_bumper
             val padShooterReverseStop =
                 false//previousGamepad1.left_bumper && !previousGamepad1.left_bumper
@@ -357,8 +357,8 @@ class TeleopActions : ActionOpMode() {
 
             // update RR, update motor controllers
 
-            val padSpinUp = false//gamepad1.right_bumper && !previousGamepad1.right_bumper
-            val padSpinDown = false //gamepad1.left_bumper && !previousGamepad1.left_bumper
+            val padSpinUp = gamepad1.right_bumper && !previousGamepad1.right_bumper
+            val padSpinDown = !gamepad1.right_bumper && previousGamepad1.right_bumper
             val padMuchLowerRpm = false //gamepad1.dpad_left && !previousGamepad1.dpad_left
             val padMuchHigherRpm = false //gamepad1.dpad_right && !previousGamepad1.dpad_right
             val padLowerRpm = gamepad1.dpad_down && !previousGamepad1.dpad_down
@@ -367,8 +367,8 @@ class TeleopActions : ActionOpMode() {
             if (padSpinUp) run(robot.shooter.spinUp())
             if (padSpinDown) run(robot.shooter.spinDown())
 
-            if (padLowerRpm) robot.shooter.firingRpmOffset -= 100.0
-            if (padHigherRpm) robot.shooter.firingRpmOffset += 100.0
+            if (padLowerRpm) robot.shooter.firingRpmOffset -= 50.0
+            if (padHigherRpm) robot.shooter.firingRpmOffset += 50.0
             if (padMuchLowerRpm) robot.shooter.firingRpmOffset -= 500.0
             if (padMuchHigherRpm) robot.shooter.firingRpmOffset += 500.0
 

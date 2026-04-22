@@ -25,6 +25,7 @@ import java.lang.Math.toDegrees
 class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localizer): Localizer {
     companion object {
         var enabled = true
+        var aimOnly = false
     }
 
     /**
@@ -175,6 +176,8 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         }
     }
 
+    var atagPose: Pose2d = baseLocalizer.pose
+
 
     /**
      * Updates the Localizer's pose estimate.
@@ -186,6 +189,7 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         log("AprilTagLocalizer/offset", PoseMessage(offset))
         log("AprilTagLocalizer/pose", PoseMessage(pose))
         log("AprilTagLocalizer/correctedThisLoop", false)
+        atagPose = pose
         if (!enabled) return vel
         //return vel
 
@@ -241,9 +245,9 @@ class AprilTagLocalizer(val hardwareMap: HardwareMap, val baseLocalizer: Localiz
         } // end for() loop
 
         foundPoses.sortBy { (it - pose).line.norm() }
-        val newPose = foundPoses.firstOrNull() ?: return vel
-        if (newPose.position.x > 0) return vel
-        baseLocalizer.setPose(foundPoses.firstOrNull() ?: return vel)
+        atagPose = foundPoses.firstOrNull() ?: return vel
+        if (atagPose.position.x > 0) return vel
+        if (!aimOnly) baseLocalizer.setPose(atagPose ?: return vel)
         //offset = (foundPoses.firstOrNull() ?: return vel).minusExp(basePose) // TODO TEST
 
         log("AprilTagLocalizer/pose", PoseMessage(pose))

@@ -19,7 +19,7 @@ class LynxRedClose: LinearOpMode() {
     override fun runOpMode() {
         AprilTagLocalizer.enabled = true
         val startPose = Pose2d(-55.0, 55.0, toRadians(320.0))
-        val shootPose = Pose2d(-30.0, 16.0, toRadians(300.0))
+        val shootPose = Pose2d(-30.0, 20.0, toRadians(310.0))
 
         val drive = MecanumDrive(hardwareMap,startPose)
         val robot = Robot(hardwareMap,drive)
@@ -34,7 +34,8 @@ class LynxRedClose: LinearOpMode() {
             .stopAndAdd(robot.autoFire())
             .setTangent(toRadians(90.0))
             .splineToSplineHeading(Pose2d(-15.0, 30.0, toRadians(90.0)), toRadians(90.0))
-            .splineToSplineHeading(Pose2d(-15.0, 49.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(-15.0, 52.0, toRadians(90.0)), toRadians(90.0))
+            .waitSeconds(2.0)
             .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(270.0))
             .afterTime(0.1, InstantAction { MecanumDrive.preciseEnd = true })
@@ -44,7 +45,8 @@ class LynxRedClose: LinearOpMode() {
             // start intake
             .splineToLinearHeading(Pose2d(9.0, 30.0, toRadians(90.0)), toRadians(90.0))
             .waitSeconds(0.1)
-            .splineToSplineHeading(Pose2d(9.0, 49.0, toRadians(90.0)), toRadians(90.0))
+            .splineToSplineHeading(Pose2d(9.0, 52.0, toRadians(90.0)), toRadians(90.0))
+            .waitSeconds(2.0)
             .setTangent(toRadians(180.0))
             .splineToSplineHeading(shootPose, toRadians(240.0))
             .afterTime(0.1, InstantAction { MecanumDrive.preciseEnd = true })

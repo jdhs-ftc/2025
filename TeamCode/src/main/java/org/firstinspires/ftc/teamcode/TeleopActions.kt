@@ -29,14 +29,17 @@ import org.firstinspires.ftc.teamcode.rr.Drawing
 import org.firstinspires.ftc.teamcode.rr.MecanumDrive
 import java.lang.Math.toRadians
 import java.util.LinkedList
+import kotlin.math.sign
 
 
 @TeleOp(name = "00 Teleop Field Centric")
 class TeleopActions : ActionOpMode() {
 
     // Declare a PIDF Controller to regulate heading
-    val headingPIDJoystick = PIDFController.PIDCoefficients(0.5, 0.0, 0.0)
+    val headingPIDJoystick = PIDFController.PIDCoefficients(1.0, 0.0, 0.0)
     val joystickHeadingController = PIDFController(headingPIDJoystick)
+
+    val headingKs = 0.18
 
     val allHubs: List<LynxModule> by lazy { hardwareMap.getAll<LynxModule>(LynxModule::class.java) }
     val controlHub by lazy {
@@ -142,6 +145,8 @@ class TeleopActions : ActionOpMode() {
 
             currentGamepad1.copy(gamepad1)
             currentGamepad2.copy(gamepad2)
+
+            var vel = drive.updatePoseEstimate()
 
 
             // CONTROLS
@@ -324,7 +329,10 @@ class TeleopActions : ActionOpMode() {
                         targetHeading = drive.localizer.pose.heading
                     } else {
                         headingInput =
-                            ((joystickHeadingController.update(drive.localizer.pose.heading.log()) * MecanumDrive.PARAMS.kV * MecanumDrive.PARAMS.trackWidthTicks))
+                            ((joystickHeadingController.update(System.nanoTime(), drive.localizer.pose.heading.log(),
+                                vel.angVel
+                            ) * MecanumDrive.PARAMS.kV * MecanumDrive.PARAMS.trackWidthTicks))
+                        headingInput += headingKs * headingInput.sign
                     }
 
 
@@ -373,7 +381,7 @@ class TeleopActions : ActionOpMode() {
             )
 
             updateAsync(packet)
-            drive.updatePoseEstimate()
+
 
             //motorControl.update()
             FtcDashboard.getInstance().sendTelemetryPacket(packet)

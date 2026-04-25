@@ -151,4 +151,18 @@ class Robot(hardwareMap: HardwareMap, val drive: MecanumDrive) {
                         shooter.spinDown(),
                     )
                 )
+
+    fun autoFireFour() = RaceParallelAction(
+        autoAim(),
+        SequentialAction(
+            RaceAction(
+                shooter.spinUp(), SleepAction(1.0)
+            ),
+            fireOnce(),
+            fireOnce(),
+            fireOnce(),
+            fireOnce(),
+            shooter.spinDown(),
+        )
+    )
 }

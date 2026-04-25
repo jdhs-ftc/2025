@@ -679,6 +679,11 @@ public final class MecanumDrive {
             p.put("yError", error.position.y);
             p.put("headingError (deg)", Math.toDegrees(error.heading.log()));
 
+            p.put("target x", targetPose.value().position.x);
+            p.put("target y", targetPose.value().position.y);
+            p.put("target heading (deg)", Math.toDegrees(targetPose.value().heading.log()));
+
+
             // only draw when active; only one drive action should be active at a time
             Canvas c = p.fieldOverlay();
             drawPoseHistory(c);

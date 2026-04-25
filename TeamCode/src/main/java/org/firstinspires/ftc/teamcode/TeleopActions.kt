@@ -217,7 +217,7 @@ class TeleopActions : ActionOpMode() {
             val pad1ExtraSettings = gamepad1.share
             val pad1ExTeamSwitch =
                 gamepad1.dpad_left && !previousGamepad1.dpad_left // 1 rumble blue, 2 rumble red
-            val pad1ExToggleFieldCentric = gamepad1.dpad_up && !previousGamepad1.dpad_up
+            val pad1ExToggleFieldCentric = false//gamepad1.dpad_up && !previousGamepad1.dpad_up
 
 
             // Update the speed
